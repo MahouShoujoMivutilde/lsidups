@@ -27,8 +27,8 @@ var verbose bool
 
 var DESC string = os.Args[0] + `
 
-  Is a tool for finding image dupicates (or just similar images).
-  Outputs images grouped by similarity (one filepath per line) to stdio
+  Is a tool for finding image duplicates (or just similar images).
+  Outputs images grouped by similarity (one filepath per line) to stdout
   so you can process them as you please.
 
 `
@@ -60,7 +60,7 @@ func init() {
 	flag.Var(&searchExt, "e", "image extensions (with dots) to look for")
 	flag.StringVar(&input, "i", "-",
 		"directory to search (recursively) for duplicates, when set to - can take list of images\n"+
-			"to compare from stdio (one filepath per line, like from find & fd...)")
+			"to compare from stdin")
 	flag.BoolVar(&verbose, "v", false,
 		"show time it took to complete key parts of the search")
 	flag.Usage = usage
