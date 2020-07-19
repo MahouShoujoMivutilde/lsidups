@@ -48,7 +48,7 @@ fd 'mashu' -e png --changed-within 2weeks ~/Pictures > yourlist.txt
 lsidups -i - < yourlist.txt > dups.txt
 ```
 
-then process them in any image viewer that can read stdio ([sxiv](https://github.com/muennich/sxiv), [imv]([https://github.com/eXeC64/imv/](https://github.com/eXeC64/imv)...))
+then process them in any image viewer that can read stdio ([sxiv](https://github.com/muennich/sxiv), [imv](https://github.com/eXeC64/imv))
 
 ```
 sxiv -io < dups.txt
