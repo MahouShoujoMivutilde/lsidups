@@ -7,7 +7,6 @@ import (
 	"strings"
 )
 
-
 type extensions []string
 
 func (e *extensions) String() string {
@@ -66,4 +65,3 @@ func init() {
 		"show time it took to complete key parts of the search")
 	flag.Usage = usage
 }
-
