@@ -125,7 +125,7 @@ func main() {
 	files = FilterExt(files, searchExt)
 
 	if verbose {
-		fmt.Printf("> found %d images, took %s\n", len(files), time.Since(start))
+		fmt.Fprintf(os.Stderr, "> found %d images, took %s\n", len(files), time.Since(start))
 	}
 
 	start = time.Now()
@@ -151,7 +151,7 @@ func main() {
 	close(results)
 
 	if verbose {
-		fmt.Printf("> processed images, took %s\n", time.Since(start))
+		fmt.Fprintf(os.Stderr, "> processed images, took %s\n", time.Since(start))
 	}
 
 	var pics []Image
@@ -190,7 +190,7 @@ func main() {
 	}
 
 	if verbose {
-		fmt.Printf("> found %d similar images, took %s\n",
+		fmt.Fprintf(os.Stderr, "> found %d similar images, took %s\n",
 			count, time.Since(start))
 	}
 }
