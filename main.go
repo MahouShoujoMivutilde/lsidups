@@ -21,19 +21,24 @@ type Image struct {
 	imgSize image.Point
 }
 
-func makeImage(fp string) Image {
+func makeImage(fp string) (Image, error) {
 	pic, err := images.Open(fp)
 	if err != nil {
-		panic(err)
+		return Image{}, err
 	}
 	imgHash, imgSize := images.Hash(pic)
-	return Image{fp, imgHash, imgSize}
+	return Image{fp, imgHash, imgSize}, nil
 }
 
 func imageMaker(jobs <-chan string, results chan<- Image, wg *sync.WaitGroup) {
 	defer wg.Done()
 	for fp := range jobs {
-		results <- makeImage(fp)
+		img, err := makeImage(fp)
+		if err == nil {
+			results <- img
+		} else {
+			fmt.Fprintf(os.Stderr, "> %s - %s\n", fp, err)
+		}
 	}
 }
 
