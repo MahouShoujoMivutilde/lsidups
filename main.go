@@ -123,11 +123,10 @@ func main() {
 	}
 
 	files = FilterFiles(files, func(fp string) bool {
-		return !IsHidden(fp)
+		// making sure it's image formats go supports & not system files
+		ext := strings.ToLower(filepath.Ext(fp))
+		return ContainsStr(searchExt, ext) && !IsHidden(fp)
 	})
-
-	// making sure it's image formats go supports
-	files = FilterExt(files, searchExt)
 
 	if verbose {
 		fmt.Fprintf(os.Stderr, "> found %d images, took %s\n", len(files), time.Since(start))

@@ -3,7 +3,6 @@ package main
 import (
 	"os"
 	"path/filepath"
-	"strings"
 )
 
 // GetFiles recursively walks dir tree and returns all files inside (absolute paths)
@@ -30,18 +29,4 @@ func FilterFiles(slice []string, condition func(string) bool) []string {
 		}
 	}
 	return newSlice
-}
-
-// FilterExt takes a slice of files and slice of extensions (with dots)
-// to search (searchExt), returns only files with extensions from searchExt
-func FilterExt(files []string, searchExt []string) []string {
-	return FilterFiles(files, func(fp string) bool {
-		for _, ext := range searchExt {
-			fpext := strings.ToLower(filepath.Ext(fp))
-			if fpext == ext {
-				return true
-			}
-		}
-		return false
-	})
 }
