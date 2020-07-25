@@ -132,6 +132,10 @@ func main() {
 		fmt.Fprintf(os.Stderr, "> found %d images, took %s\n", len(files), time.Since(start))
 	}
 
+	if len(files) <= 1 {
+		os.Exit(0)
+	}
+
 	start = time.Now()
 
 	// calculating image similarity hashes
