@@ -186,9 +186,8 @@ func main() {
 	}
 
 	// calculating image similarity hashes
-	numJobs := len(files)
-	jobs := make(chan string, numJobs)
-	results := make(chan Image, numJobs)
+	jobs := make(chan string)
+	results := make(chan Image, len(files))
 
 	var wg sync.WaitGroup
 	for w := 1; w <= runtime.NumCPU(); w++ {
