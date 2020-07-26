@@ -25,7 +25,7 @@ var searchExt extensions
 var input string
 var verbose bool
 
-var DESC string = os.Args[0] + `
+const DESC string = `
 
   Is a tool for finding image duplicates (or just similar images).
   Outputs images grouped by similarity (one filepath per line) to stdout
@@ -33,7 +33,7 @@ var DESC string = os.Args[0] + `
 
 `
 
-var EXAMPLES string = `
+const EXAMPLES string = `
 Examples:
   find duplicates in ~/Pictures
     lsidups -i ~/Pictures > dups.txt
@@ -47,7 +47,7 @@ Examples:
 `
 
 func usage() {
-	fmt.Fprint(flag.CommandLine.Output(), DESC)
+	fmt.Fprint(flag.CommandLine.Output(), os.Args[0]+DESC)
 
 	fmt.Fprintf(flag.CommandLine.Output(), "Usage of %[1]s:\n", os.Args[0])
 
