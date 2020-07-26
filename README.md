@@ -29,7 +29,7 @@ Usage of lsidups:
   -c    cache similarity hashes per image path
   -cache-path string
         where cache file will be stored (default "$XDG_CACHE_HOME/lsidups/" with fallback
-                -> "$HOME/.cache/lsidups/" -> $APPDATA/lsidups -> current directory)
+                -> "$HOME/.cache/lsidups/" -> "$APPDATA/lsidups" -> current directory)
   -e value
         image extensions (with dots) to look for (default .jpg,.jpeg,.png,.gif)
   -i string
