@@ -26,11 +26,15 @@ go get github.com/MahouShoujoMivutilde/lsidups
 
 ```
 Usage of lsidups:
+  -c    cache similarity hashes per image path
+  -cache-path string
+        where cache file will be stored (default "$XDG_CACHE_HOME/lsidups/" with fallback
+                -> "$HOME/.cache/lsidups/" -> $APPDATA/lsidups -> current directory)
   -e value
         image extensions (with dots) to look for (default .jpg,.jpeg,.png,.gif)
   -i string
         directory to search (recursively) for duplicates, when set to - can take list of images
-        to compare from stdio (one filepath per line, like from find & fd...) (default "-")
+        to compare from stdin (default "-")
   -v    show time it took to complete key parts of the search
 ```
 
