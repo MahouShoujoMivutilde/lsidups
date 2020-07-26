@@ -119,7 +119,12 @@ func main() {
 			}
 		}
 	} else {
-		files, _ = GetFiles(input)
+		if link, err := filepath.EvalSymlinks(input); err == nil {
+			files, _ = GetFiles(link)
+		} else {
+			fmt.Fprintf(os.Stderr, "> %s\n", err)
+			os.Exit(1)
+		}
 	}
 
 	files = FilterFiles(files, func(fp string) bool {
