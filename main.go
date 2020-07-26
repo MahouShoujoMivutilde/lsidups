@@ -2,9 +2,11 @@ package main
 
 import (
 	"bufio"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"image"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -16,9 +18,9 @@ import (
 )
 
 type Image struct {
-	fp      string
-	imgHash []float32
-	imgSize image.Point
+	Fp      string
+	ImgHash []float32
+	ImgSize image.Point
 }
 
 func makeImage(fp string) (Image, error) {
@@ -68,9 +70,9 @@ func dupsSearch(pics <-chan Image, ipics *[]Image, dupInChan chan<- []string, wg
 	defer wg.Done()
 	for pic := range pics {
 		for _, ipic := range *ipics {
-			if ipic.fp != pic.fp {
-				if images.Similar(ipic.imgHash, pic.imgHash, ipic.imgSize, pic.imgSize) {
-					dupInChan <- []string{ipic.fp, pic.fp}
+			if ipic.Fp != pic.Fp {
+				if images.Similar(ipic.ImgHash, pic.ImgHash, ipic.ImgSize, pic.ImgSize) {
+					dupInChan <- []string{ipic.Fp, pic.Fp}
 				}
 			}
 		}
@@ -109,6 +111,8 @@ func main() {
 	start := time.Now()
 
 	var files []string
+	var pics []Image
+	var cachedPics []Image
 
 	if input == "-" {
 		scanner := bufio.NewScanner(os.Stdin)
@@ -143,6 +147,44 @@ func main() {
 
 	start = time.Now()
 
+	if usecache {
+		if byt, err := ioutil.ReadFile(cachepath); err == nil {
+			if err := json.Unmarshal(byt, &cachedPics); err == nil {
+
+				var filteredFiles []string
+				var filteredPics []Image
+
+				// TODO this is very slow and should be a map
+				for _, fp := range files {
+					found := false
+					for _, img := range cachedPics {
+						// take only files given by flags/stdin
+						if img.Fp == fp {
+							found = true
+							filteredPics = append(filteredPics, img)
+							break
+						}
+					}
+					if !found {
+						filteredFiles = append(filteredFiles, fp)
+					}
+				}
+
+				files = filteredFiles
+				pics = filteredPics
+
+				if verbose {
+					fmt.Fprintf(os.Stderr, "> %d images uncached, %d images loaded "+
+						"from cache, took %s\n", len(files), len(pics), time.Since(start))
+				}
+			} else {
+				fmt.Fprintf(os.Stderr, "> tried to unserialize pics from cache, but got - %s\n", err)
+			}
+		} else {
+			fmt.Fprintf(os.Stderr, "> tried to read json cache, but got - %s\n", err)
+		}
+	}
+
 	// calculating image similarity hashes
 	numJobs := len(files)
 	jobs := make(chan string, numJobs)
@@ -164,12 +206,45 @@ func main() {
 	close(results)
 
 	if verbose {
-		fmt.Fprintf(os.Stderr, "> processed images, took %s\n", time.Since(start))
+		fmt.Fprintf(os.Stderr, "> processed from disk %d images, took %s\n", len(files), time.Since(start))
 	}
 
-	var pics []Image
 	for pic := range results {
 		pics = append(pics, pic)
+	}
+
+	if usecache {
+		start = time.Now()
+		saved := make(map[string]Image)
+		for _, img := range append(pics, cachedPics...) {
+			saved[img.Fp] = img
+		}
+		// TODO this whole thing should be a map
+		var toCache []Image
+		for _, img := range saved {
+			toCache = append(toCache, img)
+		}
+
+		serializedPics, err := json.Marshal(toCache)
+		if err == nil {
+			err := os.MkdirAll(filepath.Dir(cachepath), 0700)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "> tried to ensure cache dir exists, but got - %s\n", err)
+			}
+
+			// TODO maybe also gzip it?
+			err = ioutil.WriteFile(cachepath, serializedPics, 0600)
+			if err == nil {
+				if verbose {
+					fmt.Fprintf(os.Stderr, "> saved %d images to cache, took %s\n",
+						len(toCache), time.Since(start))
+				}
+			} else {
+				fmt.Fprintf(os.Stderr, "> tried to save cache, but got - %s\n", err)
+			}
+		} else {
+			fmt.Fprintf(os.Stderr, "> tried to serialize pics for cache, but got - %s\n", err)
+		}
 	}
 
 	start = time.Now()

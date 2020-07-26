@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -24,6 +25,8 @@ func (e *extensions) Set(val string) error {
 var searchExt extensions
 var input string
 var verbose bool
+var usecache bool
+var cachepath string
 
 const DESC string = `
 
@@ -55,13 +58,32 @@ func usage() {
 	fmt.Fprint(flag.CommandLine.Output(), EXAMPLES)
 }
 
+func cacheDir() string {
+	base := "."
+	if d := os.Getenv("XDG_CACHE_HOME"); d != "" {
+		base = d
+		base = filepath.Join(d, "lsidups")
+	} else if d := os.Getenv("HOME"); d != "" {
+		base = filepath.Join(d, ".cache", "lsidups")
+	} else if d := os.Getenv("APPDATA"); d != "" {
+		base = filepath.Join(d, "lsidups")
+	} else {
+		base, _ = os.Getwd()
+	}
+	return base
+}
+
 func init() {
 	searchExt = extensions{".jpg", ".jpeg", ".png", ".gif"}
+	cachepath = filepath.Join(cacheDir(), "lsidups_cache.json")
+
 	flag.Var(&searchExt, "e", "image extensions (with dots) to look for")
 	flag.StringVar(&input, "i", "-",
 		"directory to search (recursively) for duplicates, when set to - can take list of images\n"+
 			"to compare from stdin")
-	flag.BoolVar(&verbose, "v", false,
-		"show time it took to complete key parts of the search")
+	flag.BoolVar(&verbose, "v", false, "show time it took to complete key parts of the search")
+	flag.BoolVar(&usecache, "c", false, "cache similarity hashes per image path")
+	flag.StringVar(&cachepath, "cache-path", cachepath, "where cache file will be stored")
+
 	flag.Usage = usage
 }
