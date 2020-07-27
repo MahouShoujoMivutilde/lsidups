@@ -105,6 +105,7 @@ func dupsHolder(dupInChan <-chan []string, dupOutChan chan<- string, doneChan <-
 }
 
 func loadCache(cachepath string) (map[string]Image, error) {
+	// TODO store and respect mtime of each image
 	cachedPics := make(map[string]Image)
 	file, err := os.Open(cachepath)
 	if err != nil {
@@ -258,7 +259,7 @@ func main() {
 
 	start = time.Now()
 
-	if usecache {
+	if usecache && len(files) > 0 {
 		err := storeCache(cachepath, pics)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "> tried to update cache, but got - %s\n", err)
