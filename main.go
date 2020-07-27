@@ -215,8 +215,8 @@ func main() {
 			files, pics = filterCache(files, cachedPics)
 			if verbose {
 				fmt.Fprintf(os.Stderr,
-					"> loaded from cache %d images, got %d cached total, took %s\n",
-					len(pics), len(cachedPics), time.Since(start))
+					"> loaded from cache %d images total, %d will be used, took %s\n",
+					len(cachedPics), len(pics), time.Since(start))
 			}
 		}
 	}
