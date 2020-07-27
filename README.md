@@ -26,7 +26,7 @@ go get github.com/MahouShoujoMivutilde/lsidups
 
 ```
 Usage of lsidups:
-  -c    cache similarity hashes per image path
+  -c    use caching (works per file path)
   -cache-path string
         where cache file will be stored (default "$XDG_CACHE_HOME/lsidups/" with fallback
                 -> "$HOME/.cache/lsidups/" -> "$APPDATA/lsidups" -> current directory)
@@ -63,4 +63,25 @@ or
 imv < dups.txt
 ```
 
-Both of them allow you to map shell commands to keys, so the possibilities are endless. E.g. you could macgyver some [dmenu](https://tools.suckless.org/dmenu/) based mover, use [trash-cli](https://github.com/andreafrancia/trash-cli) for deletion.
+Both of them allow you to map shell commands to keys, so the possibilities are endless. E.g. you could macgyver some [dmenu](https://tools.suckless.org/dmenu/)/[fzf](https://github.com/junegunn/fzf) based mover, use [trash-cli](https://github.com/andreafrancia/trash-cli) for deletion, etc.
+
+### Caching
+
+If you planning to run lsidups on the same directory multiple times - consider using cache to speed things up.
+
+check for default cache file location on your system
+
+```
+lsidups -h
+```
+
+run with caching enabled
+```
+lsidups -c -i ~/Pictures > dups.txt
+```
+
+store cache file in the custom location (directories will be created for you if necessary)
+
+```
+lsidups -c -cache-path ~/where/to/store/cache.gob -i ~/Pictures > dups.txt
+```

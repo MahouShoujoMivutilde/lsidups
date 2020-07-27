@@ -47,6 +47,14 @@ Examples:
 
   then process them in any image viewer that can read stdio (sxiv, imv...)
     sxiv -io < dups.txt
+
+  if you planning to run lsidups on the same directory multiple times
+  - consider using cache to speed things up
+    lsidups -c -i ~/Pictures > dups.txt
+
+  if you want to save cache file to the custom location (directories will be created
+  for you if necessary)
+    lsidups -c -cache-path ~/where/to/store/cache.gob -i ~/Pictures > dups.txt
 `
 
 func usage() {
@@ -82,7 +90,7 @@ func init() {
 		"directory to search (recursively) for duplicates, when set to - can take list of images\n"+
 			"to compare from stdin")
 	flag.BoolVar(&verbose, "v", false, "show time it took to complete key parts of the search")
-	flag.BoolVar(&usecache, "c", false, "load/cache similarity hashes per image path")
+	flag.BoolVar(&usecache, "c", false, "use caching (works per file path)")
 	flag.StringVar(&cachepath, "cache-path", cachepath, "where cache file will be stored")
 
 	flag.Usage = usage
