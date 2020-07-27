@@ -105,14 +105,74 @@ func dupsHolder(dupInChan <-chan []string, dupOutChan chan<- string, doneChan <-
 	}
 }
 
+func loadCache(cachepath string) (map[string]Image, error) {
+	cachedPics := make(map[string]Image)
+	byt, err := ioutil.ReadFile(cachepath)
+	if err != nil {
+		return cachedPics, err
+	}
+
+	// TODO unmarshal is slow (takes about 1s) when we have alot (like 5k+) Images
+	err = json.Unmarshal(byt, &cachedPics)
+	if err != nil {
+		return cachedPics, err
+	}
+
+	return cachedPics, nil
+}
+
+// filterCache returns files that did not have cache, and
+// slice of Image for pictures that did
+func filterCache(files []string, cachedPics map[string]Image) ([]string, []Image) {
+	var filteredFiles []string
+	var filteredPics []Image
+
+	for _, fp := range files {
+		img, ok := cachedPics[fp]
+		if ok {
+			filteredPics = append(filteredPics, img)
+		} else {
+			filteredFiles = append(filteredFiles, fp)
+		}
+	}
+
+	return filteredFiles, filteredPics
+}
+
+func storeCache(cachepath string, pics []Image) error {
+	cachedPics, _ := loadCache(cachepath)
+
+	for _, img := range pics {
+		cachedPics[img.Fp] = img
+	}
+
+	serializedPics, err := json.Marshal(cachedPics)
+
+	if err != nil {
+		return err
+	}
+
+	err = os.MkdirAll(filepath.Dir(cachepath), 0700)
+	if err != nil {
+		return err
+	}
+
+	// TODO maybe also gzip it?
+	err = ioutil.WriteFile(cachepath, serializedPics, 0600)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func main() {
 	flag.Parse()
 
 	start := time.Now()
 
 	var files []string
+	// TODO make this a map
 	var pics []Image
-	var cachedPics []Image
 
 	if input == "-" {
 		scanner := bufio.NewScanner(os.Stdin)
@@ -148,43 +208,20 @@ func main() {
 	start = time.Now()
 
 	if usecache {
-		if byt, err := ioutil.ReadFile(cachepath); err == nil {
-			if err := json.Unmarshal(byt, &cachedPics); err == nil {
-
-				var filteredFiles []string
-				var filteredPics []Image
-
-				// TODO this is very slow and should be a map
-				for _, fp := range files {
-					found := false
-					for _, img := range cachedPics {
-						// take only files given by flags/stdin
-						if img.Fp == fp {
-							found = true
-							filteredPics = append(filteredPics, img)
-							break
-						}
-					}
-					if !found {
-						filteredFiles = append(filteredFiles, fp)
-					}
-				}
-
-				files = filteredFiles
-				pics = filteredPics
-
-				if verbose {
-					fmt.Fprintf(os.Stderr, "> %d images uncached, %d images loaded "+
-						"from cache, took %s\n", len(files), len(pics), time.Since(start))
-				}
-			} else {
-				fmt.Fprintf(os.Stderr, "> tried to unserialize pics from cache, but got - %s\n", err)
-			}
+		cachedPics, err := loadCache(cachepath)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "> tried to load cache, but got - %s\n", err)
 		} else {
-			fmt.Fprintf(os.Stderr, "> tried to read json cache, but got - %s\n", err)
+			files, pics = filterCache(files, cachedPics)
+			if verbose {
+				fmt.Fprintf(os.Stderr,
+					"> loaded from cache %d images, got %d cached total, took %s\n",
+					len(pics), len(cachedPics), time.Since(start))
+			}
 		}
 	}
 
+	start = time.Now()
 	// calculating image similarity hashes
 	jobs := make(chan string)
 	results := make(chan Image, len(files))
@@ -204,45 +241,25 @@ func main() {
 	// yay, antipatterns! (actually it's ok when you sure)
 	close(results)
 
-	if verbose {
-		fmt.Fprintf(os.Stderr, "> processed from disk %d images, took %s\n", len(files), time.Since(start))
-	}
-
 	for pic := range results {
 		pics = append(pics, pic)
 	}
 
+	if verbose {
+		fmt.Fprintf(os.Stderr, "> processed %d images from disk, %d from cache, took %s\n",
+			len(files), len(pics)-len(files), time.Since(start))
+	}
+
+	start = time.Now()
+
 	if usecache {
-		start = time.Now()
-		saved := make(map[string]Image)
-		for _, img := range append(pics, cachedPics...) {
-			saved[img.Fp] = img
-		}
-		// TODO this whole thing should be a map
-		var toCache []Image
-		for _, img := range saved {
-			toCache = append(toCache, img)
-		}
-
-		serializedPics, err := json.Marshal(toCache)
-		if err == nil {
-			err := os.MkdirAll(filepath.Dir(cachepath), 0700)
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "> tried to ensure cache dir exists, but got - %s\n", err)
-			}
-
-			// TODO maybe also gzip it?
-			err = ioutil.WriteFile(cachepath, serializedPics, 0600)
-			if err == nil {
-				if verbose {
-					fmt.Fprintf(os.Stderr, "> saved %d images to cache, took %s\n",
-						len(toCache), time.Since(start))
-				}
-			} else {
-				fmt.Fprintf(os.Stderr, "> tried to save cache, but got - %s\n", err)
-			}
+		err := storeCache(cachepath, pics)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "> tried to update cache, but got - %s\n", err)
 		} else {
-			fmt.Fprintf(os.Stderr, "> tried to serialize pics for cache, but got - %s\n", err)
+			if verbose {
+				fmt.Fprintf(os.Stderr, "> updated cache, took %s\n", time.Since(start))
+			}
 		}
 	}
 
