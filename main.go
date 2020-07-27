@@ -118,6 +118,12 @@ func loadCache(cachepath string) (map[string]Image, error) {
 		return cachedPics, err
 	}
 
+	// since we did not export fp to save space - we need to set it back
+	for fp, img := range cachedPics {
+		img.fp = fp
+		cachedPics[fp] = img
+	}
+
 	return cachedPics, nil
 }
 
