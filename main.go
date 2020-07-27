@@ -18,7 +18,7 @@ import (
 )
 
 type Image struct {
-	Fp      string
+	fp      string
 	ImgHash []float32
 	ImgSize image.Point
 }
@@ -70,9 +70,9 @@ func dupsSearch(pics <-chan Image, ipics *[]Image, dupInChan chan<- []string, wg
 	defer wg.Done()
 	for pic := range pics {
 		for _, ipic := range *ipics {
-			if ipic.Fp != pic.Fp {
+			if ipic.fp != pic.fp {
 				if images.Similar(ipic.ImgHash, pic.ImgHash, ipic.ImgSize, pic.ImgSize) {
-					dupInChan <- []string{ipic.Fp, pic.Fp}
+					dupInChan <- []string{ipic.fp, pic.fp}
 				}
 			}
 		}
@@ -143,7 +143,7 @@ func storeCache(cachepath string, pics []Image) error {
 	cachedPics, _ := loadCache(cachepath)
 
 	for _, img := range pics {
-		cachedPics[img.Fp] = img
+		cachedPics[img.fp] = img
 	}
 
 	serializedPics, err := json.Marshal(cachedPics)
