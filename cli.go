@@ -75,14 +75,14 @@ func cacheDir() string {
 
 func init() {
 	searchExt = extensions{".jpg", ".jpeg", ".png", ".gif"}
-	cachepath = filepath.Join(cacheDir(), "lsidups_cache.json")
+	cachepath = filepath.Join(cacheDir(), "cachemap.gob")
 
 	flag.Var(&searchExt, "e", "image extensions (with dots) to look for")
 	flag.StringVar(&input, "i", "-",
 		"directory to search (recursively) for duplicates, when set to - can take list of images\n"+
 			"to compare from stdin")
 	flag.BoolVar(&verbose, "v", false, "show time it took to complete key parts of the search")
-	flag.BoolVar(&usecache, "c", false, "cache similarity hashes per image path")
+	flag.BoolVar(&usecache, "c", false, "load/cache similarity hashes per image path")
 	flag.StringVar(&cachepath, "cache-path", cachepath, "where cache file will be stored")
 
 	flag.Usage = usage

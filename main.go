@@ -2,11 +2,10 @@ package main
 
 import (
 	"bufio"
-	"encoding/json"
+	"encoding/gob"
 	"flag"
 	"fmt"
 	"image"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -107,13 +106,14 @@ func dupsHolder(dupInChan <-chan []string, dupOutChan chan<- string, doneChan <-
 
 func loadCache(cachepath string) (map[string]Image, error) {
 	cachedPics := make(map[string]Image)
-	byt, err := ioutil.ReadFile(cachepath)
+	file, err := os.Open(cachepath)
 	if err != nil {
 		return cachedPics, err
 	}
+	defer file.Close()
 
-	// TODO unmarshal is slow (takes about 1s) when we have alot (like 5k+) Images
-	err = json.Unmarshal(byt, &cachedPics)
+	decoder := gob.NewDecoder(file)
+	err = decoder.Decode(&cachedPics)
 	if err != nil {
 		return cachedPics, err
 	}
@@ -146,19 +146,19 @@ func storeCache(cachepath string, pics []Image) error {
 		cachedPics[img.fp] = img
 	}
 
-	serializedPics, err := json.Marshal(cachedPics)
-
+	err := os.MkdirAll(filepath.Dir(cachepath), 0700)
 	if err != nil {
 		return err
 	}
 
-	err = os.MkdirAll(filepath.Dir(cachepath), 0700)
+	file, err := os.Create(cachepath)
 	if err != nil {
 		return err
 	}
 
 	// TODO maybe also gzip it?
-	err = ioutil.WriteFile(cachepath, serializedPics, 0600)
+	encoder := gob.NewEncoder(file)
+	err = encoder.Encode(&cachedPics)
 	if err != nil {
 		return err
 	}
