@@ -131,7 +131,9 @@ func loadCache(cachepath string) (map[string]Image, error) {
 }
 
 // filterCache returns files that did not have cache, and
-// slice of Image for pictures that did
+// slice of Image for pictures that
+// 1. did have cache
+// 2. were not changed on disk (checked by comparing current and cached mtime)
 func filterCache(files []string, cachedPics map[string]Image) ([]string, []Image) {
 	var filteredFiles []string
 	var filteredPics []Image
