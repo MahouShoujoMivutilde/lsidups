@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 	"path/filepath"
+	"time"
 )
 
 // GetFiles recursively walks dir tree and returns all files inside (absolute paths)
@@ -29,4 +30,13 @@ func FilterFiles(slice []string, condition func(string) bool) []string {
 		}
 	}
 	return newSlice
+}
+
+// statMtime returns file mtime (when content of the file were last modified)
+func statMtime(fp string) (time.Time, error) {
+	file, err := os.Stat(fp)
+	if err != nil {
+		return time.Time{}, err
+	}
+	return file.ModTime(), nil
 }

@@ -18,6 +18,7 @@ import (
 
 type Image struct {
 	fp      string
+	Mtime   time.Time
 	ImgHash []float32
 	ImgSize image.Point
 }
@@ -28,7 +29,9 @@ func makeImage(fp string) (Image, error) {
 		return Image{}, err
 	}
 	imgHash, imgSize := images.Hash(pic)
-	return Image{fp, imgHash, imgSize}, nil
+	// since it will return zero value anyway, error here does not actually matter
+	mtime, _ := statMtime(fp)
+	return Image{fp, mtime, imgHash, imgSize}, nil
 }
 
 func imageMaker(jobs <-chan string, results chan<- Image, wg *sync.WaitGroup) {
@@ -105,7 +108,6 @@ func dupsHolder(dupInChan <-chan []string, dupOutChan chan<- string, doneChan <-
 }
 
 func loadCache(cachepath string) (map[string]Image, error) {
-	// TODO store and respect mtime of each image
 	cachedPics := make(map[string]Image)
 	file, err := os.Open(cachepath)
 	if err != nil {
@@ -135,8 +137,11 @@ func filterCache(files []string, cachedPics map[string]Image) ([]string, []Image
 	var filteredPics []Image
 
 	for _, fp := range files {
+		mtimeNow, _ := statMtime(fp)
 		img, ok := cachedPics[fp]
-		if ok {
+
+		if ok && img.Mtime.Equal(mtimeNow) && !img.Mtime.IsZero() && !mtimeNow.IsZero() {
+			// cache should be valid
 			filteredPics = append(filteredPics, img)
 		} else {
 			filteredFiles = append(filteredFiles, fp)
