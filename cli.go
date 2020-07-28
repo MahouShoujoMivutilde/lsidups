@@ -43,7 +43,7 @@ Examples:
 
   or compare just selected images
     fd 'mashu' -e png --changed-within 2weeks ~/Pictures > yourlist.txt
-    lsidups -i - < yourlist.txt > dups.txt
+    lsidups < yourlist.txt > dups.txt
 
   then process them in any image viewer that can read stdio (sxiv, imv...)
     sxiv -io < dups.txt
