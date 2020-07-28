@@ -26,7 +26,7 @@ go get github.com/MahouShoujoMivutilde/lsidups
 
 ```
 Usage of lsidups:
-  -c    use caching (works per file path)
+  -c    use caching (works per file path, honors mtime)
   -cache-path string
         where cache file will be stored (default "$XDG_CACHE_HOME/lsidups/" with fallback
                 -> "$HOME/.cache/lsidups/" -> "$APPDATA/lsidups" -> current directory)

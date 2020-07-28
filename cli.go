@@ -90,7 +90,7 @@ func init() {
 		"directory to search (recursively) for duplicates, when set to - can take list of images\n"+
 			"to compare from stdin")
 	flag.BoolVar(&verbose, "v", false, "show time it took to complete key parts of the search")
-	flag.BoolVar(&usecache, "c", false, "use caching (works per file path)")
+	flag.BoolVar(&usecache, "c", false, "use caching (works per file path, honors mtime)")
 	flag.StringVar(&cachepath, "cache-path", cachepath, "where cache file will be stored")
 
 	flag.Usage = usage
