@@ -45,7 +45,7 @@ Examples:
     fd 'mashu' -e png --changed-within 2weeks ~/Pictures > yourlist.txt
     lsidups < yourlist.txt > dups.txt
 
-  then process them in any image viewer that can read stdio (sxiv, imv...)
+  then process them in any image viewer that can read stdin (sxiv, imv...)
     sxiv -io < dups.txt
 
   if you planning to run lsidups on the same directory multiple times
