@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"encoding/gob"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"image"
@@ -281,10 +282,20 @@ func main() {
 	doneChan <- true
 
 	count := 0
-	for group := range dupOutChan {
-		for _, fp := range group {
-			fmt.Println(fp)
-			count++
+	if exportjson {
+		var groups [][]string
+		for group := range dupOutChan {
+			groups = append(groups, group)
+			count += len(group)
+		}
+		byt, _ := json.MarshalIndent(groups, "", "  ")
+		fmt.Println(string(byt))
+	} else {
+		for group := range dupOutChan {
+			for _, fp := range group {
+				fmt.Println(fp)
+				count++
+			}
 		}
 	}
 

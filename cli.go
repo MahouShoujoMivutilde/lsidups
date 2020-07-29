@@ -26,6 +26,7 @@ var searchExt extensions
 var input string
 var verbose bool
 var usecache bool
+var exportjson bool
 var cachepath string
 
 const DESC string = `
@@ -90,6 +91,7 @@ func init() {
 		"directory to search (recursively) for duplicates, when set to - can take list of images\n"+
 			"to compare from stdin")
 	flag.BoolVar(&verbose, "v", false, "show time it took to complete key parts of the search")
+	flag.BoolVar(&exportjson, "j", false, "output duplicates as json instead of standard flat list")
 	flag.BoolVar(&usecache, "c", false, "use caching (works per file path, honors mtime)")
 	flag.StringVar(&cachepath, "cache-path", cachepath, "where cache file will be stored")
 
