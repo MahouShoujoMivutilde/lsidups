@@ -49,6 +49,9 @@ Examples:
   then process them in any image viewer that can read stdin (sxiv, imv...)
     sxiv -io < dups.txt
 
+  or you could export json instead
+    lsidups -j < yourlist.txt > dups.json
+
   if you planning to run lsidups on the same directory multiple times
   - consider using cache to speed things up
     lsidups -c -i ~/Pictures > dups.txt

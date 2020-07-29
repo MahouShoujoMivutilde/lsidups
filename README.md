@@ -38,18 +38,59 @@ Usage of lsidups:
         directory to search (recursively) for duplicates, when set to - can take list of images
         to compare from stdin (default "-")
 
+  -j    output duplicates as json instead of standard flat list
+
   -v    show time it took to complete key parts of the search
 ```
 
 ## Examples
 
-find duplicates in ~/Pictures
+find and list duplicates in ~/Pictures
 
 ```sh
 lsidups -i ~/Pictures > dups.txt
 ```
 
+<details>
+  <summary>dups.txt</summary>
+
+  ```sh
+  /home/username/Pictures/image1.jpg
+  /home/username/Pictures/dir/image1.jpg
+  /home/username/Pictures/wdwd720p.jpg
+  /home/username/Pictures/wdwd1080p.jpg
+  /home/username/Pictures/wdwd1440p.jpg
+  # ...
+  ```
+</details>
+
+you could also export json
+
+```sh
+lsidups -j -i ~/Pictures > dups.json
+```
+
+<details>
+  <summary>dups.txt</summary>
+
+  ```json
+  [
+    [
+      "/home/username/Pictures/image1.jpg",
+      "/home/username/Pictures/dir/image1.jpg"
+    ],
+    [
+      "/home/username/Pictures/wdwd720p.jpg",
+      "/home/username/Pictures/wdwd1080p.jpg",
+      "/home/username/Pictures/wdwd1440p.jpg"
+    ]
+  ]
+  // ...
+  ```
+</details>
+
 or compare just selected (e.g. with [fd](https://github.com/sharkdp/fd)) images
+
 ```sh
 fd 'mashu' -e png --changed-within 2weeks ~/Pictures > yourlist.txt
 lsidups < yourlist.txt > dups.txt
