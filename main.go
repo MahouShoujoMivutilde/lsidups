@@ -47,13 +47,13 @@ func imageMaker(jobs <-chan string, results chan<- Image, wg *sync.WaitGroup) {
 	}
 }
 
-func dupsSearch(pics <-chan Image, ipics *[]Image, dupInChan chan<- []string, wg *sync.WaitGroup) {
+func dupsSearch(ipics <-chan Image, jpics *[]Image, dupInChan chan<- []string, wg *sync.WaitGroup) {
 	defer wg.Done()
-	for pic := range pics {
-		for _, ipic := range *ipics {
-			if ipic.fp != pic.fp {
-				if images.Similar(ipic.ImgHash, pic.ImgHash, ipic.ImgSize, pic.ImgSize) {
-					dupInChan <- []string{ipic.fp, pic.fp}
+	for ipic := range ipics {
+		for _, jpic := range *jpics {
+			if jpic.fp != ipic.fp {
+				if images.Similar(jpic.ImgHash, ipic.ImgHash, jpic.ImgSize, ipic.ImgSize) {
+					dupInChan <- []string{jpic.fp, ipic.fp}
 				}
 			}
 		}
@@ -65,17 +65,17 @@ func dupsHolder(dupInChan <-chan []string, dupOutChan chan<- []string, doneChan 
 	for {
 		select {
 		case pair := <-dupInChan:
-			ipicFp, picFp := pair[0], pair[1]
+			jpicFp, ipicFp := pair[0], pair[1]
 
 			ipicGroup := findGroup(duplicates, ipicFp)
-			picGroup := findGroup(duplicates, picFp)
+			jpicGroup := findGroup(duplicates, jpicFp)
 
-			if ipicGroup == -1 && picGroup == -1 {
-				duplicates = append(duplicates, []string{picFp, ipicFp})
-			} else if ipicGroup != -1 && picGroup == -1 {
-				duplicates[ipicGroup] = append(duplicates[ipicGroup], picFp)
-			} else if ipicGroup == -1 && picGroup != -1 {
-				duplicates[picGroup] = append(duplicates[picGroup], ipicFp)
+			if jpicGroup == -1 && ipicGroup == -1 {
+				duplicates = append(duplicates, []string{ipicFp, jpicFp})
+			} else if jpicGroup != -1 && ipicGroup == -1 {
+				duplicates[jpicGroup] = append(duplicates[jpicGroup], ipicFp)
+			} else if jpicGroup == -1 && ipicGroup != -1 {
+				duplicates[ipicGroup] = append(duplicates[ipicGroup], jpicFp)
 			}
 		case <-doneChan:
 			for _, group := range duplicates {

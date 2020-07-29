@@ -22,14 +22,16 @@ func (e *extensions) Set(val string) error {
 	return nil
 }
 
-var searchExt extensions
-var input string
-var verbose bool
-var usecache bool
-var exportjson bool
-var cachepath string
+var (
+	searchExt  extensions
+	input      string
+	verbose    bool
+	usecache   bool
+	exportjson bool
+	cachepath  string
+)
 
-const DESC string = `
+const DESCRIPTION string = `
 
   Is a tool for finding image duplicates (or just similar images).
   Outputs images grouped by similarity (one filepath per line) to stdout
@@ -62,7 +64,7 @@ Examples:
 `
 
 func usage() {
-	fmt.Fprint(flag.CommandLine.Output(), os.Args[0]+DESC)
+	fmt.Fprint(flag.CommandLine.Output(), os.Args[0]+DESCRIPTION)
 
 	fmt.Fprintf(flag.CommandLine.Output(), "Usage of %[1]s:\n", os.Args[0])
 
