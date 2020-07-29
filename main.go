@@ -46,28 +46,6 @@ func imageMaker(jobs <-chan string, results chan<- Image, wg *sync.WaitGroup) {
 	}
 }
 
-func insertAfterFp(arr []string, fp string, newFp string) []string {
-	after := -1
-	for i, e := range arr {
-		if e == fp {
-			after = i
-			break
-		}
-	}
-
-	if after == -1 {
-		return arr
-	}
-
-	// increase capacity for new element to fit
-	arr = append(arr, "")
-
-	// shift by 1 all elements after "after"
-	copy(arr[after+1:], arr[after:])
-	arr[after+1] = newFp
-	return arr
-}
-
 func dupsSearch(pics <-chan Image, ipics *[]Image, dupInChan chan<- []string, wg *sync.WaitGroup) {
 	defer wg.Done()
 	for pic := range pics {
@@ -81,25 +59,26 @@ func dupsSearch(pics <-chan Image, ipics *[]Image, dupInChan chan<- []string, wg
 	}
 }
 
-func dupsHolder(dupInChan <-chan []string, dupOutChan chan<- string, doneChan <-chan bool) {
-	var duplicates []string
+func dupsHolder(dupInChan <-chan []string, dupOutChan chan<- []string, doneChan <-chan bool) {
+	var duplicates [][]string
 	for {
 		select {
 		case pair := <-dupInChan:
 			ipicFp, picFp := pair[0], pair[1]
-			ipicIn := ContainsStr(duplicates, ipicFp)
-			picIn := ContainsStr(duplicates, picFp)
 
-			if picIn && !ipicIn {
-				duplicates = insertAfterFp(duplicates, picFp, ipicFp)
-			} else if !picIn && ipicIn {
-				duplicates = insertAfterFp(duplicates, ipicFp, picFp)
-			} else if !picIn && !ipicIn {
-				duplicates = append(duplicates, picFp, ipicFp)
+			ipicGroup := findGroup(duplicates, ipicFp)
+			picGroup := findGroup(duplicates, picFp)
+
+			if ipicGroup == -1 && picGroup == -1 {
+				duplicates = append(duplicates, []string{picFp, ipicFp})
+			} else if ipicGroup != -1 && picGroup == -1 {
+				duplicates[ipicGroup] = append(duplicates[ipicGroup], picFp)
+			} else if ipicGroup == -1 && picGroup != -1 {
+				duplicates[picGroup] = append(duplicates[picGroup], ipicFp)
 			}
 		case <-doneChan:
-			for _, fp := range duplicates {
-				dupOutChan <- fp
+			for _, group := range duplicates {
+				dupOutChan <- group
 			}
 			close(dupOutChan)
 			return
@@ -283,7 +262,7 @@ func main() {
 	picsChan := make(chan Image, len(pics))
 
 	dupInChan := make(chan []string, len(pics))
-	dupOutChan := make(chan string, len(pics))
+	dupOutChan := make(chan []string, len(pics))
 	doneChan := make(chan bool)
 
 	go dupsHolder(dupInChan, dupOutChan, doneChan)
@@ -302,9 +281,11 @@ func main() {
 	doneChan <- true
 
 	count := 0
-	for fp := range dupOutChan {
-		fmt.Println(fp)
-		count++
+	for group := range dupOutChan {
+		for _, fp := range group {
+			fmt.Println(fp)
+			count++
+		}
 	}
 
 	if verbose {
