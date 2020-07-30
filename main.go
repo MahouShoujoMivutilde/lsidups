@@ -42,7 +42,7 @@ func imageMaker(jobs <-chan string, results chan<- Image, wg *sync.WaitGroup) {
 		if err == nil {
 			results <- img
 		} else {
-			fmt.Fprintf(os.Stderr, "> %s - %s\n", fp, err)
+			fmt.Fprintf(os.Stderr, "> %s\n", err)
 		}
 	}
 }
