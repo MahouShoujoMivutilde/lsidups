@@ -10,8 +10,8 @@ func ContainsStr(slice []string, x string) bool {
 	return false
 }
 
-// findGroup returns index of the group in dups that contains fp,
-// -1 if not found anywhere
+// findGroup returns index of the group in dups that contains fp, -1 if not
+// found anywhere
 func findGroup(dups [][]string, fp string) int {
 	for i, group := range dups {
 		if ContainsStr(group, fp) {

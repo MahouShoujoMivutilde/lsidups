@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 )
 
-// loadCache takes path to .gob file and returns cache map.
-func loadCache(cachepath string) (map[string]Image, error) {
+// LoadCache takes path to .gob file and returns cache map.
+func LoadCache(cachepath string) (map[string]Image, error) {
 	cachedPics := make(map[string]Image)
 	file, err := os.Open(cachepath)
 	if err != nil {
@@ -30,10 +30,10 @@ func loadCache(cachepath string) (map[string]Image, error) {
 	return cachedPics, nil
 }
 
-// storeCache takes current slice of pictures and saves it to the given path
-// in gob format, if cache already exists - appends new data to it.
-func storeCache(cachepath string, pics []Image) error {
-	cachedPics, _ := loadCache(cachepath)
+// StoreCache takes current slice of pictures and saves it to the given path in
+// gob format, if cache already exists - appends new data to it.
+func StoreCache(cachepath string, pics []Image) error {
+	cachedPics, _ := LoadCache(cachepath)
 
 	for _, img := range pics {
 		cachedPics[img.fp] = img
@@ -58,11 +58,10 @@ func storeCache(cachepath string, pics []Image) error {
 	return nil
 }
 
-// filterCache returns files that did not have cache, and slice of Image
-// for files that:
-// 1. Did have cache.
-// 2. Were not changed on disk (checked by comparing current and cached mtime).
-func filterCache(files []string, cachedPics map[string]Image) ([]string, []Image) {
+// FilterCache returns files that did not have cache, and slice of Image for
+// files that: 1) did have cache;  2) were not changed on disk (checked by
+// comparing current and cached mtime).
+func FilterCache(files []string, cachedPics map[string]Image) ([]string, []Image) {
 	var filteredFiles []string
 	var filteredPics []Image
 

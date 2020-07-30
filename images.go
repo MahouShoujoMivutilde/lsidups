@@ -41,7 +41,7 @@ func imageMaker(filesIn <-chan string, imagesOut chan<- Image, wg *sync.WaitGrou
 	}
 }
 
-// MakeImages takes file pathes and concurrently makes Images for them.  They
+// MakeImages takes file pathes and concurrently makes Images for them. They
 // can be used later to find duplicates with FindDups
 func MakeImages(files []string) <-chan Image {
 	var wg sync.WaitGroup

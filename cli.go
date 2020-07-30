@@ -33,9 +33,9 @@ var (
 
 const DESCRIPTION string = `
 
-  Is a tool for finding image duplicates (or just similar images).
-  Outputs images grouped by similarity (one filepath per line) to stdout
-  so you can process them as you please.
+  Is a tool for finding image duplicates (or just similar images).  Outputs
+  images grouped by similarity (one filepath per line) to stdout so you can
+  process them as you please.
 
 `
 

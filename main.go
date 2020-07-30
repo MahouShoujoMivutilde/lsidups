@@ -56,11 +56,11 @@ func main() {
 
 	usefulCache := 0
 	if usecache {
-		cachedPics, err := loadCache(cachepath)
+		cachedPics, err := LoadCache(cachepath)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "> tried to load cache, but got - %s\n", err)
 		} else {
-			files, pics = filterCache(files, cachedPics)
+			files, pics = FilterCache(files, cachedPics)
 			if verbose {
 				usefulCache = len(pics)
 				fmt.Fprintf(os.Stderr,
@@ -85,7 +85,7 @@ func main() {
 	start = time.Now()
 
 	if usecache && len(files) > 0 {
-		err := storeCache(cachepath, pics)
+		err := StoreCache(cachepath, pics)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "> tried to update cache, but got - %s\n", err)
 		} else {

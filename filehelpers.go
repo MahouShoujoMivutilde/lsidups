@@ -6,7 +6,8 @@ import (
 	"time"
 )
 
-// GetFiles recursively walks dir tree and returns all files inside (absolute paths)
+// GetFiles recursively walks dir tree and returns all files inside (absolute
+// paths)
 func GetFiles(dir string) ([]string, error) {
 	var files []string
 	err := filepath.Walk(dir, func(fp string, info os.FileInfo, err error) error {
