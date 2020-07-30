@@ -201,6 +201,7 @@ func main() {
 
 	start = time.Now()
 
+	usefulCache := 0
 	if usecache {
 		cachedPics, err := loadCache(cachepath)
 		if err != nil {
@@ -208,9 +209,10 @@ func main() {
 		} else {
 			files, pics = filterCache(files, cachedPics)
 			if verbose {
+				usefulCache = len(pics)
 				fmt.Fprintf(os.Stderr,
 					"> loaded from cache %d images total, %d will be used, took %s\n",
-					len(cachedPics), len(pics), time.Since(start))
+					len(cachedPics), usefulCache, time.Since(start))
 			}
 		}
 	}
@@ -241,7 +243,7 @@ func main() {
 
 	if verbose {
 		fmt.Fprintf(os.Stderr, "> processed %d images from disk, %d from cache, took %s\n",
-			len(files), len(pics)-len(files), time.Since(start))
+			len(pics)-usefulCache, usefulCache, time.Since(start))
 	}
 
 	start = time.Now()
