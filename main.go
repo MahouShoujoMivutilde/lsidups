@@ -165,7 +165,6 @@ func main() {
 	start := time.Now()
 
 	var files []string
-	// TODO make this a map
 	var pics []Image
 
 	if input == "-" {
