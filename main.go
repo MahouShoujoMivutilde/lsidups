@@ -100,7 +100,7 @@ func main() {
 	// searching for similar images
 	count := 0
 	var groups [][]string
-	for group := range findDups(pics) {
+	for group := range FindDups(pics) {
 		groups = append(groups, group)
 		count += len(group)
 	}
