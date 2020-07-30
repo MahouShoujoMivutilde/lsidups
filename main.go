@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"encoding/gob"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -85,78 +84,6 @@ func dupsHolder(dupInChan <-chan []string, dupOutChan chan<- []string, doneChan 
 			return
 		}
 	}
-}
-
-func loadCache(cachepath string) (map[string]Image, error) {
-	cachedPics := make(map[string]Image)
-	file, err := os.Open(cachepath)
-	if err != nil {
-		return cachedPics, err
-	}
-	defer file.Close()
-
-	decoder := gob.NewDecoder(file)
-	err = decoder.Decode(&cachedPics)
-	if err != nil {
-		return cachedPics, err
-	}
-
-	// since we did not export fp to save space - we need to set it back
-	for fp, img := range cachedPics {
-		img.fp = fp
-		cachedPics[fp] = img
-	}
-
-	return cachedPics, nil
-}
-
-// filterCache returns files that did not have cache, and
-// slice of Image for pictures that
-// 1. did have cache
-// 2. were not changed on disk (checked by comparing current and cached mtime)
-func filterCache(files []string, cachedPics map[string]Image) ([]string, []Image) {
-	var filteredFiles []string
-	var filteredPics []Image
-
-	for _, fp := range files {
-		mtimeNow, _ := statMtime(fp)
-		img, ok := cachedPics[fp]
-
-		if ok && img.Mtime.Equal(mtimeNow) && !img.Mtime.IsZero() && !mtimeNow.IsZero() {
-			// cache should be valid
-			filteredPics = append(filteredPics, img)
-		} else {
-			filteredFiles = append(filteredFiles, fp)
-		}
-	}
-
-	return filteredFiles, filteredPics
-}
-
-func storeCache(cachepath string, pics []Image) error {
-	cachedPics, _ := loadCache(cachepath)
-
-	for _, img := range pics {
-		cachedPics[img.fp] = img
-	}
-
-	err := os.MkdirAll(filepath.Dir(cachepath), 0700)
-	if err != nil {
-		return err
-	}
-
-	file, err := os.Create(cachepath)
-	if err != nil {
-		return err
-	}
-
-	// TODO maybe also gzip it?
-	encoder := gob.NewEncoder(file)
-	err = encoder.Encode(&cachedPics)
-	if err != nil {
-		return err
-	}
-	return nil
 }
 
 func main() {
