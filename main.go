@@ -1,90 +1,17 @@
 package main
 
+// TODO tests?
+
 import (
 	"bufio"
 	"encoding/json"
 	"flag"
 	"fmt"
-	"image"
 	"os"
 	"path/filepath"
-	"runtime"
 	"strings"
-	"sync"
 	"time"
-
-	"github.com/vitali-fedulov/images"
 )
-
-type Image struct {
-	fp      string
-	Mtime   time.Time
-	ImgHash []float32
-	ImgSize image.Point
-}
-
-func makeImage(fp string) (Image, error) {
-	pic, err := images.Open(fp)
-	if err != nil {
-		return Image{}, err
-	}
-	imgHash, imgSize := images.Hash(pic)
-	// since it will return zero value anyway, error here does not actually matter
-	mtime, _ := statMtime(fp)
-	return Image{fp, mtime, imgHash, imgSize}, nil
-}
-
-func imageMaker(jobs <-chan string, results chan<- Image, wg *sync.WaitGroup) {
-	defer wg.Done()
-	for fp := range jobs {
-		img, err := makeImage(fp)
-		if err == nil {
-			results <- img
-		} else {
-			fmt.Fprintf(os.Stderr, "> %s\n", err)
-		}
-	}
-}
-
-func dupsSearch(ipics <-chan Image, jpics *[]Image, dupInChan chan<- []string, wg *sync.WaitGroup) {
-	defer wg.Done()
-	for ipic := range ipics {
-		for _, jpic := range *jpics {
-			if jpic.fp != ipic.fp {
-				if images.Similar(jpic.ImgHash, ipic.ImgHash, jpic.ImgSize, ipic.ImgSize) {
-					dupInChan <- []string{jpic.fp, ipic.fp}
-				}
-			}
-		}
-	}
-}
-
-func dupsHolder(dupInChan <-chan []string, dupOutChan chan<- []string, doneChan <-chan bool) {
-	var duplicates [][]string
-	for {
-		select {
-		case pair := <-dupInChan:
-			jpicFp, ipicFp := pair[0], pair[1]
-
-			ipicGroup := findGroup(duplicates, ipicFp)
-			jpicGroup := findGroup(duplicates, jpicFp)
-
-			if jpicGroup == -1 && ipicGroup == -1 {
-				duplicates = append(duplicates, []string{ipicFp, jpicFp})
-			} else if jpicGroup != -1 && ipicGroup == -1 {
-				duplicates[jpicGroup] = append(duplicates[jpicGroup], ipicFp)
-			} else if jpicGroup == -1 && ipicGroup != -1 {
-				duplicates[ipicGroup] = append(duplicates[ipicGroup], jpicFp)
-			}
-		case <-doneChan:
-			for _, group := range duplicates {
-				dupOutChan <- group
-			}
-			close(dupOutChan)
-			return
-		}
-	}
-}
 
 func main() {
 	flag.Parse()
@@ -144,26 +71,9 @@ func main() {
 	}
 
 	start = time.Now()
+
 	// calculating image similarity hashes
-	jobs := make(chan string)
-	results := make(chan Image, len(files))
-
-	var wg sync.WaitGroup
-	for w := 1; w <= runtime.NumCPU(); w++ {
-		wg.Add(1)
-		go imageMaker(jobs, results, &wg)
-	}
-
-	for _, fp := range files {
-		jobs <- fp
-	}
-	close(jobs)
-
-	wg.Wait()
-	// yay, antipatterns! (actually it's ok when you sure)
-	close(results)
-
-	for pic := range results {
+	for pic := range MakeImages(files) {
 		pics = append(pics, pic)
 	}
 
@@ -188,38 +98,18 @@ func main() {
 	start = time.Now()
 
 	// searching for similar images
-	picsChan := make(chan Image, len(pics))
-
-	dupInChan := make(chan []string, len(pics))
-	dupOutChan := make(chan []string, len(pics))
-	doneChan := make(chan bool)
-
-	go dupsHolder(dupInChan, dupOutChan, doneChan)
-
-	for w := 1; w <= runtime.NumCPU(); w++ {
-		wg.Add(1)
-		go dupsSearch(picsChan, &pics, dupInChan, &wg)
-	}
-
-	for _, pic := range pics {
-		picsChan <- pic
-	}
-	close(picsChan)
-
-	wg.Wait()
-	doneChan <- true
-
 	count := 0
+	var groups [][]string
+	for group := range findDups(pics) {
+		groups = append(groups, group)
+		count += len(group)
+	}
+
 	if exportjson {
-		var groups [][]string
-		for group := range dupOutChan {
-			groups = append(groups, group)
-			count += len(group)
-		}
 		byt, _ := json.MarshalIndent(groups, "", "  ")
 		fmt.Println(string(byt))
 	} else {
-		for group := range dupOutChan {
+		for _, group := range groups {
 			for _, fp := range group {
 				fmt.Println(fp)
 				count++
