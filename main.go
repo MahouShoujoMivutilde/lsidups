@@ -1,6 +1,7 @@
 package main
 
 // TODO tests?
+// TODO split to cmd and pkg
 
 import (
 	"bufio"
@@ -112,7 +113,6 @@ func main() {
 		for _, group := range groups {
 			for _, fp := range group {
 				fmt.Println(fp)
-				count++
 			}
 		}
 	}
