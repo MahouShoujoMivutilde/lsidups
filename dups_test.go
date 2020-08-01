@@ -59,15 +59,14 @@ func TestDupsHolder(t *testing.T) {
 	for _, shufPairs := range permutations(pairs) {
 		pairChan := make(chan []string)
 		dupGroupsChan := make(chan []string, len(pairs))
-		doneChan := make(chan bool)
 
-		go dupsHolder(pairChan, dupGroupsChan, doneChan)
+		go dupsHolder(pairChan, dupGroupsChan)
 
 		for _, pair := range shufPairs {
 			pairChan <- pair
 		}
 
-		doneChan <- true
+		close(pairChan)
 
 		count := 0
 		var groups [][]string
