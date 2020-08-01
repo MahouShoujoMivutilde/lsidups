@@ -64,9 +64,7 @@ func TestDupsHolder(t *testing.T) {
 		go dupsHolder(pairChan, dupGroupsChan, doneChan)
 
 		for _, pair := range shufPairs {
-			if len(pair) == 2 {
-				pairChan <- pair
-			}
+			pairChan <- pair
 		}
 
 		doneChan <- true
