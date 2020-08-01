@@ -20,6 +20,12 @@ func dupsSearcher(ipics <-chan Image, jpics *[]Image, dupInChan chan<- []string,
 	}
 }
 
+func removeGroup(s [][]string, index int) [][]string {
+	ret := make([][]string, 0)
+	ret = append(ret, s[:index]...)
+	return append(ret, s[index+1:]...)
+}
+
 func dupsHolder(dupIn <-chan []string, dupOut chan<- []string, done <-chan bool) {
 	var dups [][]string
 	for {
@@ -36,6 +42,10 @@ func dupsHolder(dupIn <-chan []string, dupOut chan<- []string, done <-chan bool)
 				dups[jpicGroup] = append(dups[jpicGroup], ipicFp)
 			} else if jpicGroup == -1 && ipicGroup != -1 {
 				dups[ipicGroup] = append(dups[ipicGroup], jpicFp)
+			} else if jpicGroup != -1 && ipicGroup != -1 && jpicGroup != ipicGroup {
+				// both found, but in different groups, so we merge 2 groups
+				dups[ipicGroup] = append(dups[ipicGroup], dups[jpicGroup]...)
+				dups = removeGroup(dups, jpicGroup)
 			}
 		case <-done:
 			for _, group := range dups {
