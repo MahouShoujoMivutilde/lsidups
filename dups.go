@@ -54,8 +54,8 @@ func dupsHolder(dupIn <-chan []string, dupOut chan<- []string) {
 }
 
 // FindDups takes slice of Images and concurrently searches for duplicates in
-// them, and returns 2d slice of groups of duplicates This should be stage 2 of
-// the search.
+// them, and returns 2d slice of groups of duplicates. This should be stage 2
+// of the search.
 func FindDups(pics []Image) <-chan []string {
 	var wg sync.WaitGroup
 	picsChan := make(chan Image, len(pics))
