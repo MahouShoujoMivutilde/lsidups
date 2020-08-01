@@ -26,38 +26,34 @@ func removeGroup(s [][]string, index int) [][]string {
 	return append(ret, s[index+1:]...)
 }
 
-func dupsHolder(dupIn <-chan []string, dupOut chan<- []string, done <-chan bool) {
+func dupsHolder(dupIn <-chan []string, dupOut chan<- []string) {
 	var dups [][]string
-	for {
-		select {
-		case pair := <-dupIn:
-			jpicFp, ipicFp := pair[0], pair[1]
+	for pair := range dupIn {
+		jpicFp, ipicFp := pair[0], pair[1]
 
-			ipicGroup := findGroup(dups, ipicFp)
-			jpicGroup := findGroup(dups, jpicFp)
+		ipicGroup := findGroup(dups, ipicFp)
+		jpicGroup := findGroup(dups, jpicFp)
 
-			if jpicGroup == -1 && ipicGroup == -1 {
-				dups = append(dups, []string{ipicFp, jpicFp})
-			} else if jpicGroup != -1 && ipicGroup == -1 {
-				dups[jpicGroup] = append(dups[jpicGroup], ipicFp)
-			} else if jpicGroup == -1 && ipicGroup != -1 {
-				dups[ipicGroup] = append(dups[ipicGroup], jpicFp)
-			} else if jpicGroup != -1 && ipicGroup != -1 && jpicGroup != ipicGroup {
-				// both found, but in different groups, so we merge 2 groups
-				dups[ipicGroup] = append(dups[ipicGroup], dups[jpicGroup]...)
-				dups = removeGroup(dups, jpicGroup)
-			}
-		case <-done:
-			for _, group := range dups {
-				dupOut <- group
-			}
-			close(dupOut)
-			return
+		if jpicGroup == -1 && ipicGroup == -1 {
+			dups = append(dups, []string{ipicFp, jpicFp})
+		} else if jpicGroup != -1 && ipicGroup == -1 {
+			dups[jpicGroup] = append(dups[jpicGroup], ipicFp)
+		} else if jpicGroup == -1 && ipicGroup != -1 {
+			dups[ipicGroup] = append(dups[ipicGroup], jpicFp)
+		} else if jpicGroup != -1 && ipicGroup != -1 && jpicGroup != ipicGroup {
+			// both found, but in different groups, so we merge 2 groups
+			dups[ipicGroup] = append(dups[ipicGroup], dups[jpicGroup]...)
+			dups = removeGroup(dups, jpicGroup)
 		}
 	}
+
+	for _, group := range dups {
+		dupOut <- group
+	}
+	close(dupOut)
 }
 
-// findDups takes slice of Images and concurrently searches for duplicates in
+// FindDups takes slice of Images and concurrently searches for duplicates in
 // them, and returns 2d slice of groups of duplicates This should be stage 2 of
 // the search.
 func FindDups(pics []Image) <-chan []string {
@@ -66,9 +62,8 @@ func FindDups(pics []Image) <-chan []string {
 
 	pairChan := make(chan []string, len(pics))
 	dupGroupsChan := make(chan []string, len(pics))
-	doneChan := make(chan bool)
 
-	go dupsHolder(pairChan, dupGroupsChan, doneChan)
+	go dupsHolder(pairChan, dupGroupsChan)
 
 	for w := 1; w <= runtime.NumCPU(); w++ {
 		wg.Add(1)
@@ -81,7 +76,9 @@ func FindDups(pics []Image) <-chan []string {
 	close(picsChan)
 
 	wg.Wait()
-	doneChan <- true
+	// compared everything, no more pairs will be sent, dupsHolder should
+	// finish what left
+	close(pairChan)
 
 	return dupGroupsChan
 }
