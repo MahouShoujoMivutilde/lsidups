@@ -25,6 +25,9 @@ go get github.com/MahouShoujoMivutilde/lsidups
 
 ```
 Usage of lsidups:
+  -T int
+        number of processing threads (default number of logical cores)
+
   -c    use caching (works per file path, honors mtime)
 
   -cache-path string
