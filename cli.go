@@ -64,9 +64,10 @@ Examples:
 `
 
 func usage() {
-	fmt.Fprint(flag.CommandLine.Output(), os.Args[0]+DESCRIPTION)
+	name := filepath.Base(os.Args[0])
+	fmt.Fprint(flag.CommandLine.Output(), name+DESCRIPTION)
 
-	fmt.Fprintf(flag.CommandLine.Output(), "Usage of %[1]s:\n", os.Args[0])
+	fmt.Fprintf(flag.CommandLine.Output(), "Usage of %[1]s:\n", name)
 
 	flag.PrintDefaults()
 	fmt.Fprint(flag.CommandLine.Output(), EXAMPLES)
