@@ -1,7 +1,6 @@
 package main
 
 import (
-	"runtime"
 	"sync"
 
 	"github.com/vitali-fedulov/images"
@@ -65,7 +64,7 @@ func FindDups(pics []Image) <-chan []string {
 
 	go dupsHolder(pairChan, dupGroupsChan)
 
-	for w := 1; w <= runtime.NumCPU(); w++ {
+	for w := 1; w <= threads; w++ {
 		wg.Add(1)
 		go dupsSearcher(picsChan, &pics, pairChan, &wg)
 	}

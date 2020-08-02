@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 )
 
@@ -29,6 +30,7 @@ var (
 	usecache   bool
 	exportjson bool
 	cachepath  string
+	threads    int
 )
 
 const DESCRIPTION string = `
@@ -100,6 +102,7 @@ func init() {
 	flag.BoolVar(&exportjson, "j", false, "output duplicates as json instead of standard flat list")
 	flag.BoolVar(&usecache, "c", false, "use caching (works per file path, honors mtime)")
 	flag.StringVar(&cachepath, "cache-path", cachepath, "where cache file will be stored")
+	flag.IntVar(&threads, "T", runtime.NumCPU(), "number of processing threads")
 
 	flag.Usage = usage
 }

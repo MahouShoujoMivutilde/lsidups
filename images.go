@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"image"
 	"os"
-	"runtime"
 	"sync"
 	"time"
 
@@ -49,7 +48,7 @@ func MakeImages(files []string) <-chan Image {
 	filesIn := make(chan string)
 	imagesOut := make(chan Image, len(files))
 
-	for w := 1; w <= runtime.NumCPU(); w++ {
+	for w := 1; w <= threads; w++ {
 		go imageMaker(filesIn, imagesOut, &wg)
 		wg.Add(1)
 	}
