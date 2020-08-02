@@ -35,7 +35,7 @@ func imageMaker(filesIn <-chan string, imagesOut chan<- Image, wg *sync.WaitGrou
 		if err == nil {
 			imagesOut <- img
 		} else {
-			fmt.Fprintf(os.Stderr, "> %s\n", err)
+			fmt.Fprintf(os.Stderr, "> %s - %s\n", fp, err)
 		}
 	}
 }
