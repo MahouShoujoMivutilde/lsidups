@@ -6,8 +6,7 @@ import (
 	"github.com/vitali-fedulov/images"
 )
 
-func dupsSearcher(ipics <-chan Image, jpics *[]Image, dupInChan chan<- []string, wg *sync.WaitGroup) {
-	defer wg.Done()
+func dupsSearcher(ipics <-chan Image, jpics *[]Image, dupInChan chan<- []string) {
 	for ipic := range ipics {
 		for _, jpic := range *jpics {
 			if jpic.fp != ipic.fp {
@@ -66,7 +65,10 @@ func FindDups(pics []Image) <-chan []string {
 
 	for w := 1; w <= threads; w++ {
 		wg.Add(1)
-		go dupsSearcher(picsChan, &pics, pairChan, &wg)
+		go func() {
+			defer wg.Done()
+			dupsSearcher(picsChan, &pics, pairChan)
+		}()
 	}
 
 	for _, pic := range pics {
@@ -74,10 +76,12 @@ func FindDups(pics []Image) <-chan []string {
 	}
 	close(picsChan)
 
-	wg.Wait()
-	// compared everything, no more pairs will be sent, dupsHolder should
-	// finish what left
-	close(pairChan)
+	go func() {
+		wg.Wait()
+		// compared everything, no more pairs will be sent, dupsHolder should
+		// finish what left
+		close(pairChan)
+	}()
 
 	return dupGroupsChan
 }
