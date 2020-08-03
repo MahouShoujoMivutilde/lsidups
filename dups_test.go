@@ -1,7 +1,9 @@
 package main
 
 import (
+	"math/rand"
 	"testing"
+	"time"
 )
 
 // https://stackoverflow.com/a/30226442/13291900
@@ -85,4 +87,48 @@ func TestDupsHolder(t *testing.T) {
 				trueGroups, len(groups), groups, shufPairs)
 		}
 	}
+}
+
+func randSeq(n int) string {
+	letters := []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+	b := make([]rune, n)
+	for i := range b {
+		b[i] = letters[rand.Intn(len(letters))]
+	}
+	return string(b)
+}
+
+func benchmarkDupsHolder(i int, b *testing.B) {
+	pairs := make([][]string, 0)
+
+	rand.Seed(time.Now().UnixNano())
+
+	for j := 0; j < (i-1)*(i-1); j++ {
+		pairs = append(pairs, []string{randSeq(5), randSeq(5)})
+	}
+
+	for n := 0; n < b.N; n++ {
+		pairChan := make(chan []string)
+		dupGroupsChan := make(chan []string, len(pairs))
+
+		go dupsHolder(pairChan, dupGroupsChan)
+
+		for _, pair := range pairs {
+			pairChan <- pair
+		}
+		close(pairChan)
+
+		for group := range dupGroupsChan {
+			res := group
+			_ = res
+		}
+	}
+}
+
+func BenchmarkDupHolder10(b *testing.B) {
+	benchmarkDupsHolder(10, b)
+}
+
+func BenchmarkDupHolder100(b *testing.B) {
+	benchmarkDupsHolder(100, b)
 }
