@@ -6,46 +6,39 @@ import (
 	"github.com/vitali-fedulov/images"
 )
 
-func dupsSearcher(ipics <-chan Image, jpics *[]Image, dupInChan chan<- []string) {
+func dupsSearcher(ipics <-chan Image, jpics *[]Image, dupInChan chan<- map[string][]string) {
+	dups := make(map[string][]string)
 	for ipic := range ipics {
 		for _, jpic := range *jpics {
 			if jpic.fp != ipic.fp {
 				if images.Similar(jpic.ImgHash, ipic.ImgHash, jpic.ImgSize, ipic.ImgSize) {
-					dupInChan <- []string{jpic.fp, ipic.fp}
+					dups[ipic.fp] = append(dups[ipic.fp], jpic.fp)
 				}
 			}
 		}
 	}
+	dupInChan <- dups
 }
 
-func removeGroupUnordered(s [][]string, i int) [][]string {
-	s[i] = s[len(s)-1]
-	return s[:len(s)-1]
-}
+func dupsMerger(dupIn <-chan map[string][]string, dupOut chan<- []string) {
+	dups := make(map[string][]string)
 
-func dupsHolder(dupIn <-chan []string, dupOut chan<- []string) {
-	var dups [][]string
-	for pair := range dupIn {
-		jpicFp, ipicFp := pair[0], pair[1]
-
-		ipicGroup := findGroup(dups, ipicFp)
-		jpicGroup := findGroup(dups, jpicFp)
-
-		if jpicGroup == -1 && ipicGroup == -1 {
-			dups = append(dups, []string{ipicFp, jpicFp})
-		} else if jpicGroup != -1 && ipicGroup == -1 {
-			dups[jpicGroup] = append(dups[jpicGroup], ipicFp)
-		} else if jpicGroup == -1 && ipicGroup != -1 {
-			dups[ipicGroup] = append(dups[ipicGroup], jpicFp)
-		} else if jpicGroup != -1 && ipicGroup != -1 && jpicGroup != ipicGroup {
-			// both found, but in different groups, so we merge 2 groups
-			dups[ipicGroup] = append(dups[ipicGroup], dups[jpicGroup]...)
-			dups = removeGroupUnordered(dups, jpicGroup)
+	for partialMap := range dupIn {
+		for k, v := range partialMap {
+			// NOTE keys are unique, see dupsSearcher
+			dups[k] = v
 		}
 	}
 
-	for _, group := range dups {
-		dupOut <- group
+	// get rid of mirror pairs
+	for _, v := range dups {
+		for _, fp := range v {
+			delete(dups, fp)
+		}
+	}
+
+	for k, v := range dups {
+		dupOut <- append(v, k)
 	}
 	close(dupOut)
 }
@@ -57,10 +50,10 @@ func FindDups(pics []Image) <-chan []string {
 	var wg sync.WaitGroup
 	picsChan := make(chan Image, len(pics))
 
-	pairChan := make(chan []string, len(pics))
+	pairChan := make(chan map[string][]string, len(pics))
 	dupGroupsChan := make(chan []string, len(pics))
 
-	go dupsHolder(pairChan, dupGroupsChan)
+	go dupsMerger(pairChan, dupGroupsChan)
 
 	for w := 1; w <= threads; w++ {
 		wg.Add(1)
