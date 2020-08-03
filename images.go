@@ -28,8 +28,7 @@ func makeImage(fp string) (Image, error) {
 	return Image{fp, mtime, imgHash, imgSize}, nil
 }
 
-func imageMaker(filesIn <-chan string, imagesOut chan<- Image, wg *sync.WaitGroup) {
-	defer wg.Done()
+func imageMaker(filesIn <-chan string, imagesOut chan<- Image) {
 	for fp := range filesIn {
 		img, err := makeImage(fp)
 		if err == nil {
@@ -49,8 +48,11 @@ func MakeImages(files []string) <-chan Image {
 	imagesOut := make(chan Image, len(files))
 
 	for w := 1; w <= threads; w++ {
-		go imageMaker(filesIn, imagesOut, &wg)
 		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			imageMaker(filesIn, imagesOut)
+		}()
 	}
 
 	for _, fp := range files {
@@ -58,9 +60,11 @@ func MakeImages(files []string) <-chan Image {
 	}
 	close(filesIn)
 
-	wg.Wait()
+	go func() {
+		wg.Wait()
+		// processed everything, no new images will be sent
+		close(imagesOut)
+	}()
 
-	// yay, antipatterns! (actually it's ok when you sure)
-	close(imagesOut)
 	return imagesOut
 }
