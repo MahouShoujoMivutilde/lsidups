@@ -48,18 +48,18 @@ func dupsMerger(dupIn <-chan map[string][]string, dupOut chan<- []string) {
 // of the search.
 func FindDups(pics []Image) <-chan []string {
 	var wg sync.WaitGroup
-	picsChan := make(chan Image, len(pics))
+	picsChan := make(chan Image)
 
-	pairChan := make(chan map[string][]string, len(pics))
-	dupGroupsChan := make(chan []string, len(pics))
+	partialMaps := make(chan map[string][]string, threads)
+	dupGroups := make(chan []string)
 
-	go dupsMerger(pairChan, dupGroupsChan)
+	go dupsMerger(partialMaps, dupGroups)
 
 	for w := 1; w <= threads; w++ {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			dupsSearcher(picsChan, &pics, pairChan)
+			dupsSearcher(picsChan, &pics, partialMaps)
 		}()
 	}
 
@@ -72,8 +72,8 @@ func FindDups(pics []Image) <-chan []string {
 		wg.Wait()
 		// compared everything, no more pairs will be sent, dupsHolder should
 		// finish what left
-		close(pairChan)
+		close(partialMaps)
 	}()
 
-	return dupGroupsChan
+	return dupGroups
 }
