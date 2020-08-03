@@ -104,5 +104,9 @@ func init() {
 	flag.StringVar(&cachepath, "cache-path", cachepath, "where cache file will be stored")
 	flag.IntVar(&threads, "T", runtime.NumCPU(), "number of processing threads")
 
+	if threads < 1 {
+		threads = runtime.NumCPU()
+	}
+
 	flag.Usage = usage
 }
