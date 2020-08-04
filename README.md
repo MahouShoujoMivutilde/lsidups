@@ -7,7 +7,7 @@ Pipe a list of files to compare into stdin or just input (`-i`) a directory you 
 
 It uses library [images](https://github.com/vitali-fedulov/images) (MIT) under the hood, so if you want to know more about limitations and how comparison works - read [this](https://similar.pictures/algorithm-for-perceptual-image-comparison.html).
 
-lsidups itself is just a wrapper that tries to provide a way to compare a lot (10k+) images reasonably fast from cli, and then allow you to process found duplicates in some other more convenient tool, like e.g. [sxiv](https://github.com/muennich/sxiv).
+lsidups itself is just a wrapper that tries to provide a way to compare a lot (10k+) images reasonably fast from cli, and then allow you to process found duplicates in some other more convenient tool, like e.g. [sxiv](https://github.com/muennich/sxiv) or with some custom script (see [examples directory](examples)).
 
 ### Image formats support
 
@@ -92,39 +92,11 @@ lsidups -j -i ~/Pictures > dups.json
   ```
 </details>
 
-you can then sort images in groups e.g. by size
+you can then sort images in groups e.g. by file size with [sortsize.py](examples/sortsize.py), see [examples directory](examples) for more
 
-<details>
-  <summary>sortsize.py</summary>
-
-  ```python
-  #!/usr/bin/env python3
-  # sortsize.py
-  # just pipe json into it
-
-  import json
-  import sys
-  from os import path
-
-  groups = json.load(sys.stdin)
-
-  # sort files by size inside each group
-  for i, group in enumerate(groups):
-      groups[i] = sorted(group, key=lambda fp: path.getsize(fp), reverse=True)
-
-  # if you want sorted json back
-  # print(json.dumps(groups, indent=2))
-
-  # if you want flat list
-  for group in groups:
-      for fp in group:
-          print(fp)
-  ```
-
-  ```sh
-  sortsize.py < dups.json > dups.txt
-  ```
-</details>
+```sh
+sortsize.py < dups.json > dups.txt
+```
 
 or compare just selected (e.g. with [fd](https://github.com/sharkdp/fd)) images
 
