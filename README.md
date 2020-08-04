@@ -92,6 +92,40 @@ lsidups -j -i ~/Pictures > dups.json
   ```
 </details>
 
+you can then sort images in groups e.g. by size
+
+<details>
+  <summary>sortsize.py</summary>
+
+  ```python
+  #!/usr/bin/env python3
+  # sortsize.py
+  # just pipe json into it
+
+  import json
+  import sys
+  from os import path
+
+  groups = json.load(sys.stdin)
+
+  # sort files by size inside each group
+  for i, group in enumerate(groups):
+      groups[i] = sorted(group, key=lambda fp: path.getsize(fp), reverse=True)
+
+  # if you want sorted json back
+  # print(json.dumps(groups, indent=2))
+
+  # if you want flat list
+  for group in groups:
+      for fp in group:
+          print(fp)
+  ```
+
+  ```sh
+  sortsize.py < dups.json > dups.txt
+  ```
+</details>
+
 or compare just selected (e.g. with [fd](https://github.com/sharkdp/fd)) images
 
 ```sh
