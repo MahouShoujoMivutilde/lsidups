@@ -28,6 +28,7 @@ var (
 	input      string
 	verbose    bool
 	usecache   bool
+	tidycache  bool
 	exportjson bool
 	cachepath  string
 	threads    int
@@ -101,6 +102,7 @@ func init() {
 	flag.BoolVar(&verbose, "v", false, "show time it took to complete key parts of the search")
 	flag.BoolVar(&exportjson, "j", false, "output duplicates as json instead of standard flat list")
 	flag.BoolVar(&usecache, "c", false, "use caching (works per file path, honors mtime)")
+	flag.BoolVar(&tidycache, "ct", false, "remove missing (on drive) files from cache")
 	flag.StringVar(&cachepath, "cache-path", cachepath, "where cache file will be stored")
 	flag.IntVar(&threads, "T", runtime.NumCPU(), "number of processing threads")
 

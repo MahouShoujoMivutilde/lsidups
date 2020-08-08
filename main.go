@@ -19,6 +19,18 @@ func main() {
 
 	start := time.Now()
 
+	if tidycache {
+		purged, err := tidyCache(cachepath)
+
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "> tried to tidy cache, but got - %s\n", err)
+		} else {
+			fmt.Fprintf(os.Stderr, "> purged %d from cache, took %s\n",
+				purged, time.Since(start))
+		}
+		os.Exit(0)
+	}
+
 	var files []string
 	var pics []Image
 

@@ -72,3 +72,21 @@ func FilterCache(files []string, cachedPics map[string]Image) ([]string, []Image
 
 	return filteredFiles, filteredPics
 }
+
+// tidyCache cleans cache from files that are missing on drive
+func tidyCache(cachepath string) (int, error) {
+	cachedPics, _ := LoadCache(cachepath)
+	initalCount := len(cachedPics)
+
+	for fp := range cachedPics {
+		if _, err := os.Stat(fp); os.IsNotExist(err) {
+			delete(cachedPics, fp)
+		}
+	}
+
+	if purged := initalCount - len(cachedPics); purged > 0 {
+		err := StoreCache(cachepath, cachedPics)
+		return purged, err
+	}
+	return 0, nil
+}
