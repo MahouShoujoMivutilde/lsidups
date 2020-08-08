@@ -34,6 +34,9 @@ Usage of lsidups:
         where cache file will be stored (default "$XDG_CACHE_HOME/lsidups/" with fallback
                 -> "$HOME/.cache/lsidups/" -> "$APPDATA/lsidups" -> current directory)
 
+  -ct
+        remove missing (on drive) files from cache
+
   -e value
         image extensions (with dots) to look for (default .jpg,.jpeg,.png,.gif)
 
