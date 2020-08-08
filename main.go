@@ -86,7 +86,13 @@ func main() {
 	start = time.Now()
 
 	if usecache && len(pics)-usefulCache > 0 {
-		err := StoreCache(cachepath, pics)
+		cachedPics, _ := LoadCache(cachepath)
+
+		for _, img := range pics {
+			cachedPics[img.fp] = img
+		}
+
+		err := StoreCache(cachepath, cachedPics)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "> tried to update cache, but got - %s\n", err)
 		} else {

@@ -30,15 +30,8 @@ func LoadCache(cachepath string) (map[string]Image, error) {
 	return cachedPics, nil
 }
 
-// StoreCache takes current slice of pictures and saves it to the given path in
-// gob format, if cache already exists - appends new data to it.
-func StoreCache(cachepath string, pics []Image) error {
-	cachedPics, _ := LoadCache(cachepath)
-
-	for _, img := range pics {
-		cachedPics[img.fp] = img
-	}
-
+// StoreCache takes cache map and saves it to the given path in gob format
+func StoreCache(cachepath string, cachedPics map[string]Image) error {
 	err := os.MkdirAll(filepath.Dir(cachepath), 0700)
 	if err != nil {
 		return err
