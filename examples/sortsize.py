@@ -11,7 +11,7 @@ from os import path
 groups = json.load(sys.stdin)
 
 for i, group in enumerate(groups):
-    groups[i] = sorted(group, key=lambda fp: path.getsize(fp), reverse=True)
+    groups[i] = sorted(group, key=path.getsize, reverse=True)
 
 # if you want sorted json back
 # print(json.dumps(groups, indent=2))
