@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 )
 
-// LoadCache takes path to .gob file and returns cache map.
-func LoadCache(cachepath string) (map[string]Image, error) {
+// loadCache takes path to .gob file and returns cache map.
+func loadCache(cachepath string) (map[string]Image, error) {
 	cachedPics := make(map[string]Image)
 	file, err := os.Open(cachepath)
 	if err != nil {
@@ -30,8 +30,8 @@ func LoadCache(cachepath string) (map[string]Image, error) {
 	return cachedPics, nil
 }
 
-// StoreCache takes cache map and saves it to the given path in gob format
-func StoreCache(cachepath string, cachedPics map[string]Image) error {
+// storeCache takes cache map and saves it to the given path in gob format
+func storeCache(cachepath string, cachedPics map[string]Image) error {
 	err := os.MkdirAll(filepath.Dir(cachepath), 0700)
 	if err != nil {
 		return err
@@ -51,10 +51,10 @@ func StoreCache(cachepath string, cachedPics map[string]Image) error {
 	return nil
 }
 
-// FilterCache returns files that did not have cache, and slice of Image for
+// filterCache returns files that did not have cache, and slice of Image for
 // files that: 1) did have cache;  2) were not changed on disk (checked by
 // comparing current and cached mtime).
-func FilterCache(files []string, cachedPics map[string]Image) ([]string, []Image) {
+func filterCache(files []string, cachedPics map[string]Image) ([]string, []Image) {
 	var filteredFiles []string
 	var filteredPics []Image
 
@@ -75,7 +75,7 @@ func FilterCache(files []string, cachedPics map[string]Image) ([]string, []Image
 
 // tidyCache cleans cache from files that are missing on drive
 func tidyCache(cachepath string) (int, error) {
-	cachedPics, _ := LoadCache(cachepath)
+	cachedPics, _ := loadCache(cachepath)
 	initalCount := len(cachedPics)
 
 	for fp := range cachedPics {
@@ -85,7 +85,7 @@ func tidyCache(cachepath string) (int, error) {
 	}
 
 	if purged := initalCount - len(cachedPics); purged > 0 {
-		err := StoreCache(cachepath, cachedPics)
+		err := storeCache(cachepath, cachedPics)
 		return purged, err
 	}
 	return 0, nil

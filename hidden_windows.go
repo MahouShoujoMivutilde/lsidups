@@ -4,7 +4,7 @@ import (
 	"syscall"
 )
 
-func IsHidden(fp string) bool {
+func isHidden(fp string) bool {
 	ptr, err := syscall.UTF16PtrFromString(fp)
 	if err != nil {
 		return false

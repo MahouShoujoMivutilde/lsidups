@@ -44,17 +44,17 @@ func main() {
 		}
 	} else {
 		if link, err := filepath.EvalSymlinks(input); err == nil {
-			files, _ = GetFiles(link)
+			files, _ = getFiles(link)
 		} else {
 			fmt.Fprintf(os.Stderr, "> %s\n", err)
 			os.Exit(1)
 		}
 	}
 
-	files = FilterFiles(files, func(fp string) bool {
+	files = filterFiles(files, func(fp string) bool {
 		// making sure it's image formats go supports & not system files
 		ext := strings.ToLower(filepath.Ext(fp))
-		return ContainsStr(searchExt, ext) && !IsHidden(fp)
+		return containsStr(searchExt, ext) && !isHidden(fp)
 	})
 
 	if verbose {
@@ -69,11 +69,11 @@ func main() {
 
 	usefulCache := 0
 	if usecache {
-		cachedPics, err := LoadCache(cachepath)
+		cachedPics, err := loadCache(cachepath)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "> tried to load cache, but got - %s\n", err)
 		} else {
-			files, pics = FilterCache(files, cachedPics)
+			files, pics = filterCache(files, cachedPics)
 			if verbose {
 				usefulCache = len(pics)
 				fmt.Fprintf(os.Stderr,
@@ -86,7 +86,7 @@ func main() {
 	start = time.Now()
 
 	// calculating image similarity hashes
-	for pic := range MakeImages(files) {
+	for pic := range makeImages(files) {
 		pics = append(pics, pic)
 	}
 
@@ -98,13 +98,13 @@ func main() {
 	start = time.Now()
 
 	if usecache && len(pics)-usefulCache > 0 {
-		cachedPics, _ := LoadCache(cachepath)
+		cachedPics, _ := loadCache(cachepath)
 
 		for _, img := range pics {
 			cachedPics[img.fp] = img
 		}
 
-		err := StoreCache(cachepath, cachedPics)
+		err := storeCache(cachepath, cachedPics)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "> tried to update cache, but got - %s\n", err)
 		} else {
@@ -119,7 +119,7 @@ func main() {
 	// searching for similar images
 	count := 0
 	var groups [][]string
-	for group := range FindDups(pics) {
+	for group := range findDups(pics) {
 		groups = append(groups, group)
 		count += len(group)
 	}

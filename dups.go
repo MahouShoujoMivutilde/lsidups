@@ -43,10 +43,10 @@ func dupsMerger(dupIn <-chan map[string][]string, dupOut chan<- []string) {
 	close(dupOut)
 }
 
-// FindDups takes slice of Images and concurrently searches for duplicates in
+// findDups takes slice of Images and concurrently searches for duplicates in
 // them, and returns 2d slice of groups of duplicates. This should be stage 2
 // of the search.
-func FindDups(pics []Image) <-chan []string {
+func findDups(pics []Image) <-chan []string {
 	var wg sync.WaitGroup
 	picsChan := make(chan Image)
 

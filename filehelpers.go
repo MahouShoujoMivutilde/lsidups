@@ -6,9 +6,9 @@ import (
 	"time"
 )
 
-// GetFiles recursively walks dir tree and returns all files inside (absolute
+// getFiles recursively walks dir tree and returns all files inside (absolute
 // paths)
-func GetFiles(dir string) ([]string, error) {
+func getFiles(dir string) ([]string, error) {
 	var files []string
 	err := filepath.Walk(dir, func(fp string, info os.FileInfo, err error) error {
 		if !info.IsDir() {
@@ -22,8 +22,8 @@ func GetFiles(dir string) ([]string, error) {
 	return files, err
 }
 
-// FilterFiles takes a slice of files and function to evaluate each file with
-func FilterFiles(slice []string, condition func(string) bool) []string {
+// filterFiles takes a slice of files and function to evaluate each file with
+func filterFiles(slice []string, condition func(string) bool) []string {
 	var newSlice []string
 	for _, element := range slice {
 		if condition(element) {
