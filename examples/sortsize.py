@@ -10,6 +10,10 @@ from os import path
 
 groups = json.load(sys.stdin)
 
+# no input
+if groups is None:
+    sys.exit(0)
+
 for i, group in enumerate(groups):
     groups[i] = sorted(group, key=path.getsize, reverse=True)
 

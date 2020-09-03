@@ -11,6 +11,10 @@ from PIL import Image
 
 groups = json.load(sys.stdin)
 
+# no input
+if groups is None:
+    sys.exit(0)
+
 
 def resolution(fp):
     with Image.open(fp) as img:
