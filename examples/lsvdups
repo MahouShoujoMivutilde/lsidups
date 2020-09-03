@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+
+set -eu
+
+# Really dumb video duplicate finder.
+
+# Can detect same videos in different formats/quality, WILL NOT detect
+# different cuts of the same video, because it essentially only compares
+# thumbnails.
+
+# By default only compares for mp4, webm and mkv.
+# Look for "FORMATS" below to change that.
+
+# USAGE:
+# 1. lsvdups /some/dir/with/videos
+# 2. sxiv will open
+# 3. mark (m) thumbnails of videos you want to delete
+
+# depends on:
+#    lsidups (obviously)
+#    sortsize (from examples)
+#    fd - https://github.com/sharkdp/fd
+#    ffmpegthumbnailer - https://github.com/dirkvdb/ffmpegthumbnailer
+#    xargs from findutils (probably already installed)
+
+
+# path to directory with videos
+videos="$(realpath "$1")"
+
+# list of its inner directory structure
+dirs=/tmp/lsvdups.dirs.txt
+
+# where to map this structure
+img=/tmp/image
+
+
+# get directory structure
+(echo $PWD; fd -t d . "$videos") | sed "s|^/||g" > $dirs
+
+# clean up
+rm -rf $img.{dups,del} $img
+mkdir -p $img
+cd $img
+
+# copy directory structure
+xargs -d '\n' -I{} -n1 -r mkdir -p "{}" < $dirs
+
+# FORMATS: map inside it videos via thumbnails
+fd -t f -e webm -e mp4 -e mkv . "$videos" -x ffmpegthumbnailer -s 0 -i {} -o "$img/{}.jpeg"
+
+# find duplicate and sort with biggest (usually largest resolution) first
+lsidups -v -i $img -j | sortsize > $img.dups
+
+[ $(wc -l < $img.dups) = 0 ] && exit 0
+
+echo 'mark thumbnails of videos you want to delete with m'
+
+# show duplicates
+sxiv -io < $img.dups > $img.del
+
+# delete marker (does not run if list is empty)
+sed "s|\.jpeg$||g;s|$img||g" $img.del | while read -r vid; do
+    echo "rm $vid"
+    rm "$vid"
+    # or use trash-put from https://github.com/andreafrancia/trash-cli
+done
