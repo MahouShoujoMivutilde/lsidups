@@ -3,6 +3,7 @@ package main
 import (
 	"sync"
 
+	"github.com/corona10/goimagehash"
 	"github.com/vitali-fedulov/images"
 )
 
@@ -11,7 +12,10 @@ func dupsSearcher(ipics <-chan Image, jpics *[]Image, dupInChan chan<- map[strin
 	for ipic := range ipics {
 		for _, jpic := range *jpics {
 			if jpic.fp != ipic.fp {
-				if images.Similar(jpic.ImgHash, ipic.ImgHash, jpic.ImgSize, ipic.ImgSize) {
+				iPhash := goimagehash.NewImageHash(ipic.Phash, ipic.HashKind)
+				jPhash := goimagehash.NewImageHash(jpic.Phash, jpic.HashKind)
+				d, _ := iPhash.Distance(jPhash)
+				if images.Similar(jpic.ImgHash, ipic.ImgHash, jpic.ImgSize, ipic.ImgSize) || d < pMaxDist {
 					dups[ipic.fp] = append(dups[ipic.fp], jpic.fp)
 				}
 			}

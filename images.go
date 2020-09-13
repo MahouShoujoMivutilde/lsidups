@@ -7,14 +7,17 @@ import (
 	"sync"
 	"time"
 
+	"github.com/corona10/goimagehash"
 	"github.com/vitali-fedulov/images"
 )
 
 type Image struct {
-	fp      string      // file path
-	Mtime   time.Time   // file's last modification time
-	ImgHash []float32   // similarity hash
-	ImgSize image.Point // width x height
+	fp       string      // file path
+	Mtime    time.Time   // file's last modification time
+	ImgHash  []float32   // similarity hash from fedulov's images
+	ImgSize  image.Point // width x height
+	Phash    uint64
+	HashKind goimagehash.Kind
 }
 
 func makeImage(fp string) (Image, error) {
@@ -23,9 +26,12 @@ func makeImage(fp string) (Image, error) {
 		return Image{}, err
 	}
 	imgHash, imgSize := images.Hash(pic)
+	pHash, _ := goimagehash.PerceptionHash(pic)
+	hash := pHash.GetHash()
+	kind := pHash.GetKind()
 	// since it will return zero value anyway, error here does not actually matter
 	mtime, _ := statMtime(fp)
-	return Image{fp, mtime, imgHash, imgSize}, nil
+	return Image{fp, mtime, imgHash, imgSize, hash, kind}, nil
 }
 
 func imageMaker(filesIn <-chan string, imagesOut chan<- Image) {

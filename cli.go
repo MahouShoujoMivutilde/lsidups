@@ -32,13 +32,17 @@ var (
 	exportjson bool
 	cachepath  string
 	threads    int
+	pMaxDist   int
 )
 
 const DESCRIPTION string = `
 
   Is a tool for finding image duplicates (or just similar images).  Outputs
-  images grouped by similarity (one filepath per line) to stdout so you can
-  process them as you please.
+  images grouped by similarity to stdout so you can process them as you please.
+
+  It uses https://github.com/vitali-fedulov/images (for its precise matching)
+  together with phash from https://github.com/corona10/goimagehash (to detect
+  cropped images and allow for variable similarity threshold)
 
 `
 
@@ -105,6 +109,7 @@ func init() {
 	flag.BoolVar(&tidycache, "ct", false, "remove missing (on drive) files from cache")
 	flag.StringVar(&cachepath, "cache-path", cachepath, "where cache file will be stored")
 	flag.IntVar(&threads, "T", runtime.NumCPU(), "number of processing threads")
+	flag.IntVar(&pMaxDist, "d", 8, "phash threshold distance (less = more precise match, but more false negatives)")
 
 	if threads < 1 {
 		threads = runtime.NumCPU()
