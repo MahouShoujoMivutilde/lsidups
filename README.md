@@ -5,7 +5,9 @@
 ### How to use
 Pipe a list of files to compare into stdin or just input (`-i`) a directory you want to check. It then will output images grouped by similarity so you can process them as you please.
 
-It uses library [images](https://github.com/vitali-fedulov/images) (MIT) under the hood, so if you want to know more about limitations and how comparison works - read [this](https://similar.pictures/algorithm-for-perceptual-image-comparison.html).
+It mainly relies on [images](https://github.com/vitali-fedulov/images) (MIT) library under the hood, so if you want to know more about limitations and how comparison works - read [this](https://similar.pictures/algorithm-for-perceptual-image-comparison.html).
+
+Phash from [goimagehash](github.com/corona10/goimagehash) (BSD-2) is used to catch cropped duplicates (with that `images` tends to struggle) and to allow for variable similarity threshold.
 
 lsidups itself is just a wrapper that tries to provide a way to compare a lot (10k+) images reasonably fast from cli, and then allow you to process found duplicates in some other more convenient tool, like e.g. [sxiv](https://github.com/muennich/sxiv) or with some custom script (see [examples directory](examples)).
 
@@ -40,6 +42,9 @@ Usage of lsidups:
 
   -ct
         remove missing (on drive) files from cache
+
+  -d int
+        phash threshold distance (less = more precise match, but more false negatives) (default 8)
 
   -e value
         image extensions (with dots) to look for (default .jpg,.jpeg,.png,.gif)
