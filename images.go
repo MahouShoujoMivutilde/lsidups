@@ -53,7 +53,7 @@ func makeImages(files []string) <-chan Image {
 	filesIn := make(chan string)
 	imagesOut := make(chan Image, len(files))
 
-	for w := 1; w <= threads; w++ {
+	for w := 1; w <= gThreads; w++ {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()

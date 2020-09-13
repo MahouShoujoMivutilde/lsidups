@@ -24,15 +24,15 @@ func (e *extensions) Set(val string) error {
 }
 
 var (
-	searchExt  extensions
-	input      string
-	verbose    bool
-	usecache   bool
-	tidycache  bool
-	exportjson bool
-	cachepath  string
-	threads    int
-	pMaxDist   int
+	gSearchExt  extensions
+	gInput      string
+	gVerbose    bool
+	gUseCache   bool
+	gTidyCache  bool
+	gExportJSON bool
+	gCachePath  string
+	gThreads    int
+	gMaxDist    int
 )
 
 const DESCRIPTION string = `
@@ -96,23 +96,23 @@ func cacheDir() string {
 }
 
 func init() {
-	searchExt = extensions{".jpg", ".jpeg", ".png", ".gif"}
-	cachepath = filepath.Join(cacheDir(), "cachemap.gob")
+	gSearchExt = extensions{".jpg", ".jpeg", ".png", ".gif"}
+	gCachePath = filepath.Join(cacheDir(), "cachemap.gob")
 
-	flag.Var(&searchExt, "e", "image extensions (with dots) to look for")
-	flag.StringVar(&input, "i", "-",
+	flag.Var(&gSearchExt, "e", "image extensions (with dots) to look for")
+	flag.StringVar(&gInput, "i", "-",
 		"directory to search (recursively) for duplicates, when set to - can take list of images\n"+
 			"to compare from stdin")
-	flag.BoolVar(&verbose, "v", false, "show time it took to complete key parts of the search")
-	flag.BoolVar(&exportjson, "j", false, "output duplicates as json instead of standard flat list")
-	flag.BoolVar(&usecache, "c", false, "use caching (works per file path, honors mtime)")
-	flag.BoolVar(&tidycache, "ct", false, "remove missing (on drive) files from cache")
-	flag.StringVar(&cachepath, "cache-path", cachepath, "where cache file will be stored")
-	flag.IntVar(&threads, "T", runtime.NumCPU(), "number of processing threads")
-	flag.IntVar(&pMaxDist, "d", 8, "phash threshold distance (less = more precise match, but more false negatives)")
+	flag.BoolVar(&gVerbose, "v", false, "show time it took to complete key parts of the search")
+	flag.BoolVar(&gExportJSON, "j", false, "output duplicates as json instead of standard flat list")
+	flag.BoolVar(&gUseCache, "c", false, "use caching (works per file path, honors mtime)")
+	flag.BoolVar(&gTidyCache, "ct", false, "remove missing (on drive) files from cache")
+	flag.StringVar(&gCachePath, "cache-path", gCachePath, "where cache file will be stored")
+	flag.IntVar(&gThreads, "T", runtime.NumCPU(), "number of processing threads")
+	flag.IntVar(&gMaxDist, "d", 8, "phash threshold distance (less = more precise match, but more false negatives)")
 
-	if threads < 1 {
-		threads = runtime.NumCPU()
+	if gThreads < 1 {
+		gThreads = runtime.NumCPU()
 	}
 
 	flag.Usage = usage

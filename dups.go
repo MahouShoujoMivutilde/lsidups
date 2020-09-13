@@ -15,7 +15,7 @@ func dupsSearcher(ipics <-chan Image, jpics *[]Image, dupInChan chan<- map[strin
 				iPhash := goimagehash.NewImageHash(ipic.Phash, ipic.HashKind)
 				jPhash := goimagehash.NewImageHash(jpic.Phash, jpic.HashKind)
 				d, _ := iPhash.Distance(jPhash)
-				if images.Similar(jpic.ImgHash, ipic.ImgHash, jpic.ImgSize, ipic.ImgSize) || d < pMaxDist {
+				if images.Similar(jpic.ImgHash, ipic.ImgHash, jpic.ImgSize, ipic.ImgSize) || d < gMaxDist {
 					dups[ipic.fp] = append(dups[ipic.fp], jpic.fp)
 				}
 			}
@@ -54,12 +54,12 @@ func findDups(pics []Image) <-chan []string {
 	var wg sync.WaitGroup
 	picsChan := make(chan Image)
 
-	partialMaps := make(chan map[string][]string, threads)
+	partialMaps := make(chan map[string][]string, gThreads)
 	dupGroups := make(chan []string)
 
 	go dupsMerger(partialMaps, dupGroups)
 
-	for w := 1; w <= threads; w++ {
+	for w := 1; w <= gThreads; w++ {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()

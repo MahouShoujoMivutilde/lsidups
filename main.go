@@ -19,8 +19,8 @@ func main() {
 
 	start := time.Now()
 
-	if tidycache {
-		purged, err := tidyCache(cachepath)
+	if gTidyCache {
+		purged, err := tidyCache(gCachePath)
 
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "> tried to tidy cache, but got - %s\n", err)
@@ -34,7 +34,7 @@ func main() {
 	var files []string
 	var pics []Image
 
-	if input == "-" {
+	if gInput == "-" {
 		scanner := bufio.NewScanner(os.Stdin)
 		for scanner.Scan() {
 			file := strings.TrimSpace(scanner.Text())
@@ -43,7 +43,7 @@ func main() {
 			}
 		}
 	} else {
-		if link, err := filepath.EvalSymlinks(input); err == nil {
+		if link, err := filepath.EvalSymlinks(gInput); err == nil {
 			files, _ = getFiles(link)
 		} else {
 			fmt.Fprintf(os.Stderr, "> %s\n", err)
@@ -54,10 +54,10 @@ func main() {
 	files = filterFiles(files, func(fp string) bool {
 		// making sure it's image formats go supports & not system files
 		ext := strings.ToLower(filepath.Ext(fp))
-		return containsStr(searchExt, ext) && !isHidden(fp)
+		return containsStr(gSearchExt, ext) && !isHidden(fp)
 	})
 
-	if verbose {
+	if gVerbose {
 		fmt.Fprintf(os.Stderr, "> found %d images, took %s\n", len(files), time.Since(start))
 	}
 
@@ -68,13 +68,13 @@ func main() {
 	start = time.Now()
 
 	usefulCache := 0
-	if usecache {
-		cachedPics, err := loadCache(cachepath)
+	if gUseCache {
+		cachedPics, err := loadCache(gCachePath)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "> tried to load cache, but got - %s\n", err)
 		} else {
 			files, pics = filterCache(files, cachedPics)
-			if verbose {
+			if gVerbose {
 				usefulCache = len(pics)
 				fmt.Fprintf(os.Stderr,
 					"> loaded from cache %d images total, %d will be used, took %s\n",
@@ -90,25 +90,25 @@ func main() {
 		pics = append(pics, pic)
 	}
 
-	if verbose {
+	if gVerbose {
 		fmt.Fprintf(os.Stderr, "> processed %d images from disk, %d from cache, took %s\n",
 			len(pics)-usefulCache, usefulCache, time.Since(start))
 	}
 
 	start = time.Now()
 
-	if usecache && len(pics)-usefulCache > 0 {
-		cachedPics, _ := loadCache(cachepath)
+	if gUseCache && len(pics)-usefulCache > 0 {
+		cachedPics, _ := loadCache(gCachePath)
 
 		for _, img := range pics {
 			cachedPics[img.fp] = img
 		}
 
-		err := storeCache(cachepath, cachedPics)
+		err := storeCache(gCachePath, cachedPics)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "> tried to update cache, but got - %s\n", err)
 		} else {
-			if verbose {
+			if gVerbose {
 				fmt.Fprintf(os.Stderr, "> updated cache, took %s\n", time.Since(start))
 			}
 		}
@@ -124,7 +124,7 @@ func main() {
 		count += len(group)
 	}
 
-	if exportjson {
+	if gExportJSON {
 		byt, _ := json.MarshalIndent(groups, "", "  ")
 		fmt.Println(string(byt))
 	} else {
@@ -135,7 +135,7 @@ func main() {
 		}
 	}
 
-	if verbose {
+	if gVerbose {
 		fmt.Fprintf(os.Stderr, "> found %d similar images, took %s\n",
 			count, time.Since(start))
 	}
