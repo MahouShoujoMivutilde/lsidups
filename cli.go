@@ -27,16 +27,17 @@ func (e *extensions) Set(val string) error {
 }
 
 var (
-	gSearchExt  extensions
-	gInput      string
-	gVerbose    bool
-	gUseCache   bool
-	gTidyCache  bool
-	gExportJSON bool
-	gCachePath  string
-	gThreads    int
-	gMaxDist    int
-	au          aurora.Aurora
+	gSearchExt     extensions
+	gInput         string
+	gVerbose       bool
+	gUseCache      bool
+	gTidyCache     bool
+	gExportJSON    bool
+	gNoMergeGroups bool
+	gCachePath     string
+	gThreads       int
+	gMaxDist       int
+	au             aurora.Aurora
 )
 
 const DESCRIPTION string = `
@@ -72,6 +73,15 @@ Examples:
   if you want to save cache file to the custom location (directories will be created
   for you if necessary)
     lsidups -c -cache-path ~/where/to/store/cache.gob -i ~/Pictures > dups.txt
+
+  also it is worth noting that lsidups merges groups if some of their items are the same.
+
+  i think it makes sense from the user perspective, but the resulting group
+  might contain images that are not all actually similar with each other: let's
+  say we have 3 images: [1.png 2.png 3.png], 1 and 2 hashes are similar enough
+  to be consider related images, and 2 and 3 also similar enough, but 1 and 3
+  are far apart enough to be consider different.  If you want to get 2 groups:
+  [1.png 2.png] and [2.png 3.png] - pass flag -g
 `
 
 func usage() {
@@ -111,6 +121,7 @@ func init() {
 	flag.BoolVar(&gExportJSON, "j", false, "output duplicates as json instead of standard flat list")
 	flag.BoolVar(&gUseCache, "c", false, "use caching (works per file path, honors mtime)")
 	flag.BoolVar(&gTidyCache, "ct", false, "remove missing (on drive) files from cache")
+	flag.BoolVar(&gNoMergeGroups, "g", false, "do not merge groups if some of the items are the same")
 	flag.StringVar(&gCachePath, "cache-path", gCachePath, "where cache file will be stored")
 	flag.IntVar(&gThreads, "T", runtime.NumCPU(), "number of processing threads")
 	flag.IntVar(&gMaxDist, "d", 8, "phash threshold distance (less = more precise match, but more false negatives)")

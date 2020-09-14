@@ -41,6 +41,23 @@ func dupsMerger(dupIn <-chan map[string][]string, dupOut chan<- []string) {
 		}
 	}
 
+	if !gNoMergeGroups {
+		// merge groups if some of the items are the same
+		for k, v := range dups {
+			for _, fp := range v {
+				for k2, v2 := range dups {
+					if k2 != k {
+						if containsStr(v2, fp) || containsStr(v2, k) {
+							dups[k] = append(append(dups[k], v2...), k2)
+							dups[k] = mkSetStr(dups[k])
+							delete(dups, k2)
+						}
+					}
+				}
+			}
+		}
+	}
+
 	for k, v := range dups {
 		dupOut <- append(v, k)
 	}

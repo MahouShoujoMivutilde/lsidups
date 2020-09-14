@@ -41,3 +41,16 @@ func statMtime(fp string) (time.Time, error) {
 	}
 	return file.ModTime(), nil
 }
+
+// mkSetStr returns slice containing only unique items
+func mkSetStr(slice []string) []string {
+	tmpList := make(map[string]bool)
+	for _, el := range slice {
+		tmpList[el] = true
+	}
+	slice = nil
+	for el := range tmpList {
+		slice = append(slice, el)
+	}
+	return slice
+}
