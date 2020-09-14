@@ -57,6 +57,9 @@ func main() {
 		return containsStr(gSearchExt, ext) && !isHidden(fp)
 	})
 
+	// deduplicate input
+	files = mkSetStr(files)
+
 	if gVerbose {
 		fmt.Fprintf(os.Stderr, "> found %d images, took %s\n",
 			au.Cyan(len(files)), au.Green(time.Since(start)))
