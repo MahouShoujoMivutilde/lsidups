@@ -24,7 +24,7 @@ If you want to find video duplicates instead - try [lsvdups](examples/lsvdups).
 Make sure you have go and git installed.
 
 ```sh
-go get github.com/MahouShoujoMivutilde/lsidups
+env CGO_ENABLED=0 go get -u -ldflags="-s -w" github.com/MahouShoujoMivutilde/lsidups
 ```
 
 ## Options
