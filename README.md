@@ -132,8 +132,6 @@ imv < dups.txt
 
 Both of them allow you to map shell commands to keys, so the possibilities are endless. E.g. you could macgyver some [dmenu](https://tools.suckless.org/dmenu/)/[fzf](https://github.com/junegunn/fzf) based mover, use [trash-cli](https://github.com/andreafrancia/trash-cli) for deletion, etc.
 
----
-
 Also it is worth noting that lsidups merges groups if some of their items are the same. I think it makes sense from the user perspective, but the resulting group might contain images that are not all actually similar with each other.
 
 Let's say we have 3 images: 1.png, 2.png, 3.png.
