@@ -21,13 +21,22 @@ type Image struct {
 	HashKind goimagehash.Kind
 }
 
-func makeImage(fp string) (Image, error) {
+func makeImage(fp string) (img Image, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("likely upstream bug: %s\n%s",
+				au.Red(r), au.Index(210, debug.Stack()))
+		}
+	}()
 	pic, err := images.Open(fp)
 	if err != nil {
 		return Image{}, err
 	}
 	imgHash, imgSize := images.Hash(pic)
-	pHash, _ := goimagehash.PerceptionHash(pic)
+	pHash, err := goimagehash.PerceptionHash(pic)
+	if err != nil {
+		return Image{}, err
+	}
 	hash := pHash.GetHash()
 	kind := pHash.GetKind()
 	// since it will return zero value anyway, error here does not actually matter
