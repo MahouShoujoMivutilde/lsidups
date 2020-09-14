@@ -49,6 +49,8 @@ Usage of lsidups:
   -e value
         image extensions (with dots) to look for (default .jpg,.jpeg,.png,.gif)
 
+  -g    do not merge groups if some of the items are the same
+
   -i string
         directory to search (recursively) for duplicates, when set to - can take list of images
         to compare from stdin (default "-")
@@ -129,6 +131,18 @@ imv < dups.txt
 ```
 
 Both of them allow you to map shell commands to keys, so the possibilities are endless. E.g. you could macgyver some [dmenu](https://tools.suckless.org/dmenu/)/[fzf](https://github.com/junegunn/fzf) based mover, use [trash-cli](https://github.com/andreafrancia/trash-cli) for deletion, etc.
+
+---
+
+Also it is worth noting that lsidups merges groups if some of their items are the same. I think it makes sense from the user perspective, but the resulting group might contain images that are not all actually similar with each other.
+
+Let's say we have 3 images: 1.png, 2.png, 3.png.
+
+Hashes of 1 and 2 are similar enough to be considered related, and 2 and 3 are also similar enough, but 1 and 3 are far apart enough to be considered different.
+
+By default they will be grouped like [1.png 2.png 3.png].
+
+If you want to get 2 groups: [1.png 2.png] and [2.png 3.png] - pass flag `-g`.
 
 ### Caching
 

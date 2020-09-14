@@ -79,9 +79,9 @@ Examples:
   i think it makes sense from the user perspective, but the resulting group
   might contain images that are not all actually similar with each other: let's
   say we have 3 images: [1.png 2.png 3.png], 1 and 2 hashes are similar enough
-  to be consider related images, and 2 and 3 also similar enough, but 1 and 3
-  are far apart enough to be consider different.  If you want to get 2 groups:
-  [1.png 2.png] and [2.png 3.png] - pass flag -g
+  to be considered related images, and 2 and 3 also similar enough, but 1 and 3
+  are far apart enough to be considered different.  If you want to get 2
+  groups: [1.png 2.png] and [2.png 3.png] - pass flag -g
 `
 
 func usage() {
