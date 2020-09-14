@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"image"
 	"os"
+	"runtime/debug"
 	"sync"
 	"time"
 
@@ -40,7 +41,7 @@ func imageMaker(filesIn <-chan string, imagesOut chan<- Image) {
 		if err == nil {
 			imagesOut <- img
 		} else {
-			fmt.Fprintf(os.Stderr, "> %s - %s\n", fp, err)
+			fmt.Fprintf(os.Stderr, "> %s - %s\n", au.Index(117, fp), au.Red(err))
 		}
 	}
 }

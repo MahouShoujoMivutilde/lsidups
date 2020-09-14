@@ -23,10 +23,10 @@ func main() {
 		purged, err := tidyCache(gCachePath)
 
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "> tried to tidy cache, but got - %s\n", err)
+			fmt.Fprintf(os.Stderr, "> tried to tidy cache, but got - %s\n", au.Red(err))
 		} else {
 			fmt.Fprintf(os.Stderr, "> purged %d from cache, took %s\n",
-				purged, time.Since(start))
+				au.Cyan(purged), au.Green(time.Since(start)))
 		}
 		os.Exit(0)
 	}
@@ -46,7 +46,7 @@ func main() {
 		if link, err := filepath.EvalSymlinks(gInput); err == nil {
 			files, _ = getFiles(link)
 		} else {
-			fmt.Fprintf(os.Stderr, "> %s\n", err)
+			fmt.Fprintf(os.Stderr, "> %s\n", au.Red(err))
 			os.Exit(1)
 		}
 	}
@@ -58,7 +58,8 @@ func main() {
 	})
 
 	if gVerbose {
-		fmt.Fprintf(os.Stderr, "> found %d images, took %s\n", len(files), time.Since(start))
+		fmt.Fprintf(os.Stderr, "> found %d images, took %s\n",
+			au.Cyan(len(files)), au.Green(time.Since(start)))
 	}
 
 	if len(files) <= 1 {
@@ -71,14 +72,14 @@ func main() {
 	if gUseCache {
 		cachedPics, err := loadCache(gCachePath)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "> tried to load cache, but got - %s\n", err)
+			fmt.Fprintf(os.Stderr, "> tried to load cache, but got - %s\n", au.Red(err))
 		} else {
 			files, pics = filterCache(files, cachedPics)
 			if gVerbose {
 				usefulCache = len(pics)
 				fmt.Fprintf(os.Stderr,
 					"> loaded from cache %d images total, %d will be used, took %s\n",
-					len(cachedPics), usefulCache, time.Since(start))
+					au.Cyan(len(cachedPics)), au.Cyan(usefulCache), au.Green(time.Since(start)))
 			}
 		}
 	}
@@ -92,7 +93,7 @@ func main() {
 
 	if gVerbose {
 		fmt.Fprintf(os.Stderr, "> processed %d images from disk, %d from cache, took %s\n",
-			len(pics)-usefulCache, usefulCache, time.Since(start))
+			au.Cyan(len(pics)-usefulCache), au.Cyan(usefulCache), au.Green(time.Since(start)))
 	}
 
 	start = time.Now()
@@ -106,10 +107,10 @@ func main() {
 
 		err := storeCache(gCachePath, cachedPics)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "> tried to update cache, but got - %s\n", err)
+			fmt.Fprintf(os.Stderr, "> tried to update cache, but got - %s\n", au.Red(err))
 		} else {
 			if gVerbose {
-				fmt.Fprintf(os.Stderr, "> updated cache, took %s\n", time.Since(start))
+				fmt.Fprintf(os.Stderr, "> updated cache, took %s\n", au.Green(time.Since(start)))
 			}
 		}
 	}
@@ -137,6 +138,6 @@ func main() {
 
 	if gVerbose {
 		fmt.Fprintf(os.Stderr, "> found %d similar images, took %s\n",
-			count, time.Since(start))
+			au.Cyan(count), au.Green(time.Since(start)))
 	}
 }

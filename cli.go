@@ -7,6 +7,9 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+
+	"github.com/logrusorgru/aurora"
+	"github.com/mattn/go-isatty"
 )
 
 type extensions []string
@@ -33,6 +36,7 @@ var (
 	gCachePath  string
 	gThreads    int
 	gMaxDist    int
+	au          aurora.Aurora
 )
 
 const DESCRIPTION string = `
@@ -114,6 +118,9 @@ func init() {
 	if gThreads < 1 {
 		gThreads = runtime.NumCPU()
 	}
+
+	// color output only when stderr is terminal
+	au = aurora.NewAurora(isatty.IsTerminal(os.Stderr.Fd()))
 
 	flag.Usage = usage
 }
