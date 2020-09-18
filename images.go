@@ -10,6 +10,8 @@ import (
 
 	"github.com/corona10/goimagehash"
 	"github.com/vitali-fedulov/images"
+
+	_ "golang.org/x/image/webp"
 )
 
 type Image struct {

@@ -13,7 +13,7 @@ lsidups itself is just a wrapper that tries to provide a way to compare a lot (1
 
 ### Image formats support
 
-At the moment of writing, it supports **only** **jpeg**, **png** and **gif**; i tried to make webp work, but [this](https://github.com/golang/go/issues/38341) prevented it. _\*very sad webp UwU\*._
+At the moment of writing, it supports **only** **jpeg**, **png**, **gif** and **non-alpha webp**; transparent **webp** doesn't work because of [this](https://github.com/golang/go/issues/38341).
 
 ### Video
 
@@ -47,7 +47,7 @@ Usage of lsidups:
         phash threshold distance (less = more precise match, but more false negatives) (default 8)
 
   -e value
-        image extensions (with dots) to look for (default .jpg,.jpeg,.png,.gif)
+        image extensions (with dots) to look for (default .jpg,.jpeg,.png,.gif,.webp)
 
   -g    do not merge groups if some of the items are the same
 

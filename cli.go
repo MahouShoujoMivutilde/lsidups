@@ -110,7 +110,7 @@ func cacheDir() string {
 }
 
 func init() {
-	gSearchExt = extensions{".jpg", ".jpeg", ".png", ".gif"}
+	gSearchExt = extensions{".jpg", ".jpeg", ".png", ".gif", ".webp"}
 	gCachePath = filepath.Join(cacheDir(), "cachemap.gob")
 
 	flag.Var(&gSearchExt, "e", "image extensions (with dots) to look for")
