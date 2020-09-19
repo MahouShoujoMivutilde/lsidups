@@ -27,6 +27,8 @@ Make sure you have go and git installed.
 env CGO_ENABLED=0 go get -u -ldflags="-s -w" github.com/MahouShoujoMivutilde/lsidups
 ```
 
+(you don't actually need to install it exactly this way, it's just nice to have smaller statically linked binary)
+
 ## Options
 
 ```
