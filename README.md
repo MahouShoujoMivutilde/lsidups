@@ -21,7 +21,7 @@ If you want to find video duplicates instead - try [lsvdups](examples/lsvdups).
 
 ### Install
 
-Make sure you have go and git installed.
+Make sure you have go and git installed, and `$(go env GOPATH)/bin` is in your `$PATH`.
 
 ```sh
 env CGO_ENABLED=0 go get -u -ldflags="-s -w" github.com/MahouShoujoMivutilde/lsidups
