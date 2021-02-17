@@ -78,8 +78,9 @@ func tidyCache(cachepath string) (int, error) {
 	cachedPics, _ := loadCache(cachepath)
 	initalCount := len(cachedPics)
 
-	for fp := range cachedPics {
-		if _, err := os.Stat(fp); os.IsNotExist(err) {
+	for fp, img := range cachedPics {
+		stat, err := os.Stat(fp)
+		if os.IsNotExist(err) || stat.ModTime().After(img.Mtime) {
 			delete(cachedPics, fp)
 		}
 	}

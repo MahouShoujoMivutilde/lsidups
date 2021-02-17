@@ -120,7 +120,7 @@ func init() {
 	flag.BoolVar(&gVerbose, "v", false, "show time it took to complete key parts of the search")
 	flag.BoolVar(&gExportJSON, "j", false, "output duplicates as json instead of standard flat list")
 	flag.BoolVar(&gUseCache, "c", false, "use caching (works per file path, honors mtime)")
-	flag.BoolVar(&gTidyCache, "ct", false, "remove missing (on drive) files from cache")
+	flag.BoolVar(&gTidyCache, "ct", false, "remove missing/changed (on drive) files from cache")
 	flag.BoolVar(&gNoMergeGroups, "g", false, "do not merge groups if some of the items are the same")
 	flag.StringVar(&gCachePath, "cache-path", gCachePath, "where cache file will be stored")
 	flag.IntVar(&gThreads, "T", runtime.NumCPU(), "number of processing threads")
