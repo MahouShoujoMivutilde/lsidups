@@ -43,7 +43,7 @@ Usage of lsidups:
                 -> "$HOME/.cache/lsidups/" -> "$APPDATA/lsidups" -> current directory)
 
   -ct
-        remove missing (on drive) files from cache
+        remove missing/changed (on drive) files from cache and exit
 
   -d int
         phash threshold distance (less = more precise match, but more false negatives) (default 8)
@@ -51,7 +51,7 @@ Usage of lsidups:
   -e value
         image extensions (with dots) to look for (default .jpg,.jpeg,.png,.gif,.webp)
 
-  -g    do not merge groups if some of the items are the same
+  -g    do not merge groups if some of the items are the same (default will merge)
 
   -i string
         directory to search (recursively) for duplicates, when set to - can take list of images
