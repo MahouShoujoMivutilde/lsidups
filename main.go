@@ -20,7 +20,7 @@ func main() {
 	start := time.Now()
 
 	if gShowVersion {
-		fmt.Fprint(os.Stderr, GitVersion)
+		fmt.Fprintln(os.Stderr, GitVersion)
 		os.Exit(0)
 	}
 
