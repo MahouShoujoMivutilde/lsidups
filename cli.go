@@ -34,6 +34,8 @@ var (
 	gTidyCache     bool
 	gExportJSON    bool
 	gNoMergeGroups bool
+	GitVersion     string
+	gShowVersion   bool
 	gCachePath     string
 	gThreads       int
 	gMaxDist       int
@@ -112,6 +114,8 @@ func cacheDir() string {
 func init() {
 	gSearchExt = extensions{".jpg", ".jpeg", ".png", ".gif", ".webp"}
 	gCachePath = filepath.Join(cacheDir(), "cachemap.gob")
+
+	flag.BoolVar(&gShowVersion, "version", false, "show version and exit")
 
 	flag.Var(&gSearchExt, "e", "image extensions (with dots) to look for")
 	flag.StringVar(&gInput, "i", "-",

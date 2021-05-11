@@ -19,6 +19,11 @@ func main() {
 
 	start := time.Now()
 
+	if gShowVersion {
+		fmt.Fprint(os.Stderr, GitVersion)
+		os.Exit(0)
+	}
+
 	if gTidyCache {
 		purged, err := tidyCache(gCachePath)
 
