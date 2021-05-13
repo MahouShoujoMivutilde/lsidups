@@ -21,6 +21,16 @@ If you want to find video duplicates instead - try [lsvdups](examples/lsvdups).
 
 ### Install
 
+#### Arch way
+
+[in AUR](https://aur.archlinux.org/packages/lsidups-git/):
+
+```
+lsidups-git
+```
+
+#### Go way
+
 Make sure you have go and git installed, and `$(go env GOPATH)/bin` is in your `$PATH`.
 
 ```sh
