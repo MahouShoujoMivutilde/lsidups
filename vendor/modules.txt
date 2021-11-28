@@ -1,0 +1,27 @@
+# github.com/corona10/goimagehash v1.0.3
+## explicit
+github.com/corona10/goimagehash
+github.com/corona10/goimagehash/etcs
+github.com/corona10/goimagehash/transforms
+# github.com/logrusorgru/aurora/v3 v3.0.0
+## explicit
+github.com/logrusorgru/aurora/v3
+# github.com/mattn/go-isatty v0.0.12
+## explicit
+github.com/mattn/go-isatty
+# github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
+## explicit
+github.com/nfnt/resize
+# github.com/vitali-fedulov/images v0.0.0-20200831232703-8a90db96a358
+## explicit
+github.com/vitali-fedulov/images
+# golang.org/x/image v0.0.0-20210220032944-ac19c3e999fb
+## explicit
+golang.org/x/image/riff
+golang.org/x/image/vp8
+golang.org/x/image/vp8l
+golang.org/x/image/webp
+# golang.org/x/sys v0.0.0-20210313202042-bd2e13477e9c
+## explicit
+golang.org/x/sys/internal/unsafeheader
+golang.org/x/sys/unix
