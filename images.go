@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/corona10/goimagehash"
-	"github.com/vitali-fedulov/images"
+	"github.com/vitali-fedulov/images/v2"
 
 	_ "golang.org/x/image/webp"
 )

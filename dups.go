@@ -4,7 +4,7 @@ import (
 	"sync"
 
 	"github.com/corona10/goimagehash"
-	"github.com/vitali-fedulov/images"
+	"github.com/vitali-fedulov/images/v2"
 )
 
 func dupsSearcher(ipics <-chan Image, jpics *[]Image, dupInChan chan<- map[string][]string) {

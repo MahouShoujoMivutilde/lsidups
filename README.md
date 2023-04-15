@@ -5,11 +5,11 @@
 ### How to use
 Pipe a list of files to compare into stdin or just input (`-i`) a directory you want to check. It then will output images grouped by similarity so you can process them as you please.
 
-It mainly relies on [images](https://github.com/vitali-fedulov/images) (MIT) library under the hood, so if you want to know more about limitations and how comparison works - read [this](https://similar.pictures/algorithm-for-perceptual-image-comparison.html).
+It mainly relies on [images](https://github.com/vitali-fedulov/images) (MIT).
 
 Phash from [goimagehash](github.com/corona10/goimagehash) (BSD-2) is used to catch cropped duplicates (with that `images` tends to struggle) and to allow for variable similarity threshold.
 
-lsidups itself is just a wrapper that tries to provide a way to compare a lot (10k+) images reasonably fast from cli, and then allow you to process found duplicates in some other more convenient tool, like e.g. [sxiv](https://github.com/muennich/sxiv) or with some custom script (see [examples directory](examples)).
+lsidups itself is just a wrapper that tries to provide a way to compare a lot (10k+) images reasonably fast from cli, and then allow you to process found duplicates in some other more convenient tool, like e.g. [nsxiv](https://codeberg.org/nsxiv/nsxiv/) or with some custom script (see [examples directory](examples)).
 
 ### Image formats support
 
@@ -17,9 +17,15 @@ At the moment of writing, it supports **only** **jpeg**, **png**, **gif** and **
 
 ### Video
 
-If you want to find video duplicates instead - try [lsvdups](examples/lsvdups).
+If you want to find video duplicates instead - try [lsvdups](examples/lsvdups) (it's not very good, though).
 
 ### Install
+
+_NOTE:_ If upgrading - consider deleting cache:
+
+```sh
+rm $XDG_CACHE_HOME/lsidups/*
+```
 
 #### Arch way
 
@@ -34,10 +40,8 @@ lsidups-git
 Make sure you have go and git installed, and `$(go env GOPATH)/bin` is in your `$PATH`.
 
 ```sh
-env CGO_ENABLED=0 go get -u -ldflags="-s -w" github.com/MahouShoujoMivutilde/lsidups
+go install github.com/MahouShoujoMivutilde/lsidups@latest
 ```
-
-(you don't actually need to install it exactly this way, it's just nice to have smaller statically linked binary; and if that doesn't work for some reason - just drop the `-u` flag.)
 
 ## Options
 
@@ -131,10 +135,10 @@ fd 'mashu' -e png --changed-within 2weeks ~/Pictures > yourlist.txt
 lsidups < yourlist.txt > dups.txt
 ```
 
-then process them in any image viewer that can read stdin ([sxiv](https://github.com/muennich/sxiv), [imv](https://github.com/eXeC64/imv))
+then process them in any image viewer that can read stdin ([nsxiv](https://codeberg.org/nsxiv/nsxiv/), [imv](https://github.com/eXeC64/imv))
 
 ```sh
-sxiv -io < dups.txt
+nsxiv -io < dups.txt
 ```
 or
 
@@ -165,7 +169,7 @@ If you want to get 2 groups: [1.png 2.png] and [2.png 3.png] - pass flag `-g`.
 
 ### Caching
 
-If you planning to run lsidups on the same directory multiple times - consider using cache to speed things up.
+If you're planning to run lsidups on the same directory multiple times - consider using cache to speed things up.
 
 Note, that cache is stored in form of a hash table with pairs like _\*absoluteFilepath\*_: _\*imageProperties\*_, so you **don't** need to have different caches for different directories, because irrelevant images will be just filtered out, and new will be added to cache at the end of the run.
 
@@ -188,3 +192,5 @@ store cache file in the custom location (directories will be created for you if 
 ```sh
 lsidups -c -cache-path ~/where/to/store/cache.gob -i ~/Pictures > dups.txt
 ```
+
+Cache from older versions _might_ become invalid after upgrades.
