@@ -13,7 +13,7 @@ lsidups itself is just a wrapper that tries to provide a way to compare a lot (1
 
 ### Image formats support
 
-At the moment of writing, it supports **only** **jpeg**, **png**, **gif** and **webp**.
+At the moment of writing, it supports **only** **jpeg**, **png**, **gif** and **webp** (_but [not some of the ones with ICC profile](https://github.com/golang/go/issues/60437#issuecomment-1563939784)_).
 
 ### Video
 

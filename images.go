@@ -23,6 +23,15 @@ type Image struct {
 	HashKind goimagehash.Kind
 }
 
+func tell_webp_iccp(err error) {
+	if fmt.Sprint(err) == "webp: invalid format" {
+		fmt.Printf("    A webp format error?\n" +
+			"    Check if your image has an ICC profile, and if it does - this could be related to\n" +
+			"        https://github.com/golang/go/issues/60437#issuecomment-1563939784\n\n" +
+			"    (It'll probably work fine if you convert it to png.)\n\n")
+	}
+}
+
 func makeImage(fp string) (img Image, err error) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -53,6 +62,7 @@ func imageMaker(filesIn <-chan string, imagesOut chan<- Image) {
 			imagesOut <- img
 		} else {
 			fmt.Fprintf(os.Stderr, "> %s - %s\n", au.Index(117, fp), au.Red(err))
+			tell_webp_iccp(err)
 		}
 	}
 }
