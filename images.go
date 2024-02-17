@@ -25,7 +25,7 @@ type Image struct {
 
 func tell_webp_iccp(err error) {
 	if fmt.Sprint(err) == "webp: invalid format" {
-		fmt.Printf("    A webp format error?\n" +
+		fmt.Fprintf(os.Stderr, "    A webp format error?\n" +
 			"    Check if your image has an ICC profile, and if it does - this could be related to\n" +
 			"        https://github.com/golang/go/issues/60437#issuecomment-1563939784\n\n" +
 			"    (It'll probably work fine if you convert it to png.)\n\n")
